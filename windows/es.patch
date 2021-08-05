@@ -1,0 +1,169 @@
+diff -ruN EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/external_wizards/eb_external_wizard.e EiffelStudio_19.12_new/Src/Eiffel/interface/new_graphical/external_wizards/eb_external_wizard.e
+--- EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/external_wizards/eb_external_wizard.e	2021-08-05 08:31:28.741450156 -0400
++++ EiffelStudio_19.12_new/Src/Eiffel/interface/new_graphical/external_wizards/eb_external_wizard.e	2021-08-03 19:43:36.000000000 -0400
+@@ -45,7 +45,8 @@
+ 			wizard_launched: BOOLEAN
+ 		do
+ 				-- Create callback file.
+-			create temp_file.make_open_temporary_with_prefix (eiffel_layout.temporary_path.extended ("eifwizard-").name)
++			temp_file := get_temp_file(eiffel_layout.temporary_path.extended ("eifwizard-").name)
++--			create temp_file.make_open_temporary_with_prefix (eiffel_layout.temporary_path.extended ("eifwizard-").name)
+ 				-- Fill callback file with input data.
+ 			temp_file.put_string ("Success=%"<SUCCESS>%"%N")
+ 			if Additional_parameters /= Void then
+@@ -77,6 +78,48 @@
+ 
+ feature {NONE} -- Implementation
+ 
++
++	get_temp_file(a_prefix:READABLE_STRING_GENERAL):PLAIN_TEXT_FILE
++		local
++			l_random:RANDOM
++			l_seed, l_count:INTEGER
++			l_time:TIME
++		do
++			create l_time.make_now
++		    l_seed := l_time.hour
++		    l_seed := l_seed * 60 + l_time.minute
++		    l_seed := l_seed * 60 + l_time.second
++		    l_seed := l_seed * 1000 + l_time.milli_second
++			create l_random.set_seed (l_seed)
++			create Result.make_with_name (a_prefix.to_string_32 + get_random_string(l_random).to_string_32)
++			from
++				l_count := 1
++			until
++				l_count > 60 or Result.is_open_write
++			loop
++				if not Result.exists and Result.is_creatable then
++					Result.create_read_write
++				else
++					create Result.make_with_name (a_prefix.to_string_32 + get_random_string(l_random).to_string_32)
++				end
++				l_count := l_count + 1
++			end
++		end
++
++	get_random_string(a_random:RANDOM):STRING_8
++		do
++			Result := ""
++			across 1 |..| 10 as la_index loop
++				a_random.forth
++				Result := Result + alphabet.at ((a_random.item \\ alphabet.count) + 1).out
++			end
++		end
++
++	alphabet:STRING_8
++		once
++			Result := "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
++		end
++
+ 	launch_wizard (callback_filename: READABLE_STRING_GENERAL)
+ 			-- Launch the wizard using the file `callback_filename' as callback.
+ 		local
+diff -ruN EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e EiffelStudio_19.12_new/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e
+--- EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e	2021-08-05 08:31:29.105524298 -0400
++++ EiffelStudio_19.12_new/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e	2021-08-03 09:46:38.000000000 -0400
+@@ -18,11 +18,6 @@
+ 			{NONE} all
+ 		end
+ 
+-	SHARED_ES_CLOUD_SERVICE
+-		export
+-			{NONE} all
+-		end
+-
+ 	EV_SHARED_APPLICATION
+ 		export
+ 			{NONE} all
+@@ -244,7 +239,7 @@
+ 
+ 	display_launching_page
+ 		do
+-			if preferences.dialog_data.show_update_manager_dialog then
++			if False then
+ 				display_version_updater_check (agent display_startup_page)
+ 			else
+ 				display_startup_page
+diff -ruN EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e EiffelStudio_19.12_new/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e
+--- EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e	2021-08-05 08:31:30.201747793 -0400
++++ EiffelStudio_19.12_new/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e	2021-08-03 09:51:14.000000000 -0400
+@@ -16,8 +16,6 @@
+ 
+ 	ES_SHARED_FONTS_AND_COLORS
+ 
+-	SHARED_ES_CLOUD_SERVICE
+-
+ create
+ 	make
+ 
+@@ -54,21 +52,6 @@
+ 				if not license_accepted then
+ 					switch_to_community_agreement_page
+ 					show_modal_to_window (win)
+-				elseif is_cloud_enabled then
+-					if is_logged_in then
+-						if
+-							attached es_cloud_s.service as cld and then
+-							attached cld.active_account as acc
+-						then
+-							cld.on_account_logged_in (acc)
+-						end
+-						on_next
+-					elseif {ES_IDE_SETTINGS}.cloud_required then
+-						switch_to_account_page
+-						show_modal_to_window (win)
+-					else
+-						on_next
+-					end
+ 				else
+ 					on_next
+ 				end
+@@ -235,17 +218,12 @@
+ 
+ 	is_cloud_enabled: BOOLEAN
+ 		do
+-			Result := es_cloud_s.service /= Void
++			Result := False
+ 		end
+ 
+ 	is_logged_in: BOOLEAN
+ 		do
+-			if attached es_cloud_s.service as cld then
+-				Result := cld.active_account /= Void
+-			else
+-					-- ES Cloud is not activated!
+-				Result := True
+-			end
++			Result := True
+ 		end
+ 
+ feature -- Text
+@@ -288,15 +266,7 @@
+ 			preferences.misc_data.set_license_accepted (True)
+ 				-- Save preferences right away.
+ 			preferences.preferences.save_preferences
+-			if is_cloud_enabled then
+-				if is_logged_in then
+-					on_next
+-				else
+-					switch_to_account_page
+-				end
+-			else
+-				on_next
+-			end
++			on_next
+ 		end
+ 
+ 	on_purchase_selected
+diff -ruN EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/windows/development_window/initialization/eb_development_window_menu_builder.e EiffelStudio_19.12_new/Src/Eiffel/interface/new_graphical/windows/development_window/initialization/eb_development_window_menu_builder.e
+--- EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/windows/development_window/initialization/eb_development_window_menu_builder.e	2021-08-05 11:07:37.995901523 -0400
++++ EiffelStudio_19.12_new/Src/Eiffel/interface/new_graphical/windows/development_window/initialization/eb_development_window_menu_builder.e	2021-08-05 11:07:55.036112016 -0400
+@@ -33,7 +33,7 @@
+ 			build_refactoring_menu
+ 			build_window_menu
+ 			build_help_menu
+-			build_cloud_account_menu
++--			build_cloud_account_menu
+ 				-- Build the menu bar.
+ 			build_menu_bar
+ 		end

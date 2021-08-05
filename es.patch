@@ -1,6 +1,6 @@
-diff -urN EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e EiffelStudio_19.12_new/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e
---- EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e	2021-08-04 19:31:32.708268535 -0400
-+++ EiffelStudio_19.12_new/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e	2021-08-03 09:46:38.918039331 -0400
+diff -ruN build/Src/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e Src_new/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e
+--- build/Src/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e	2021-08-05 08:31:29.105524298 -0400
++++ Src_new/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e	2021-08-03 09:46:38.000000000 -0400
 @@ -18,11 +18,6 @@
  			{NONE} all
  		end
@@ -22,9 +22,9 @@ diff -urN EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/main/es_abstract
  				display_version_updater_check (agent display_startup_page)
  			else
  				display_startup_page
-diff -urN EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e EiffelStudio_19.12_new/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e
---- EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e	2021-08-04 19:31:33.880291656 -0400
-+++ EiffelStudio_19.12_new/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e	2021-08-03 09:51:14.256051573 -0400
+diff -ruN build/Src/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e Src_new/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e
+--- build/Src/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e	2021-08-05 08:31:30.201747793 -0400
++++ Src_new/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e	2021-08-03 09:51:14.000000000 -0400
 @@ -16,8 +16,6 @@
  
  	ES_SHARED_FONTS_AND_COLORS
@@ -93,4 +93,15 @@ diff -urN EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/startup/es_start
  		end
  
  	on_purchase_selected
-Les fichiers binaires EiffelStudio_19.12/.svn/wc.db et EiffelStudio_19.12_new/.svn/wc.db sont différents
+diff -ruN build/Src/Src/Eiffel/interface/new_graphical/windows/development_window/initialization/eb_development_window_menu_builder.e Src_new/Src/Eiffel/interface/new_graphical/windows/development_window/initialization/eb_development_window_menu_builder.e
+--- build/Src/Src/Eiffel/interface/new_graphical/windows/development_window/initialization/eb_development_window_menu_builder.e	2021-08-05 11:07:37.995901523 -0400
++++ Src_new/Src/Eiffel/interface/new_graphical/windows/development_window/initialization/eb_development_window_menu_builder.e	2021-08-05 11:07:55.036112016 -0400
+@@ -33,7 +33,7 @@
+ 			build_refactoring_menu
+ 			build_window_menu
+ 			build_help_menu
+-			build_cloud_account_menu
++--			build_cloud_account_menu
+ 				-- Build the menu bar.
+ 			build_menu_bar
+ 		end

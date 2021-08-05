@@ -1,0 +1,44 @@
+#!/bin/sh
+# EiffelStudio Community releases
+# Copyright (C) 2021 Eiffel Software and Louis M
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+
+
+remtrace Retrieve unstable libraries
+cd $1
+md unstable
+cd unstable
+
+remtrace README.txt
+cp -rp $EIFFEL_SOURCE/Src/unstable/README.txt README.txt
+
+remtrace library
+cp -rp $EIFFEL_SOURCE/Src/unstable/library library
+
+
+remtrace Retrieve contrib libraries and examples
+cd $1
+md contrib
+cd contrib
+
+remtrace README.txt
+cp -rp $EIFFEL_SOURCE/Src/contrib/README.txt README.txt
+
+remtrace library
+cp -rp $EIFFEL_SOURCE/Src/contrib/library library
+
+remtrace examples
+cp -rp $EIFFEL_SOURCE/Src/contrib/examples examples

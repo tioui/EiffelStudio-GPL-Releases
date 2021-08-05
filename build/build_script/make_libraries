@@ -1,0 +1,96 @@
+#!/bin/sh
+# EiffelStudio Community releases
+# Copyright (C) 2021 Eiffel Software and Louis M
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+
+
+remtrace Retrieve libraries
+cd $1
+md library
+cd library
+remtrace api_wrapper
+cp -rp $EIFFEL_SOURCE/Src/$2/api_wrapper api_wrapper
+remtrace argument_parser
+cp -rp $EIFFEL_SOURCE/Src/$2/argument_parser argument_parser
+remtrace base
+cp -rp $EIFFEL_SOURCE/Src/$2/base base 
+remtrace base_extension
+cp -rp $EIFFEL_SOURCE/Src/$2/base_extension base_extension 
+remtrace cocoa
+cp -rp $EIFFEL_SOURCE/Src/$2/cocoa cocoa
+remtrace cURL
+cp -rp $EIFFEL_SOURCE/Src/$2/cURL cURL
+remtrace diff
+cp -rp $EIFFEL_SOURCE/Src/$2/diff diff
+remtrace docking
+cp -rp $EIFFEL_SOURCE/Src/$2/docking docking 
+remtrace Eiffel2Java
+cp -rp $EIFFEL_SOURCE/Src/$2/Eiffel2Java Eiffel2Java 
+remtrace editor
+cp -rp $EIFFEL_SOURCE/Src/$2/editor editor
+remtrace encoding
+cp -rp $EIFFEL_SOURCE/Src/$2/encoding encoding
+remtrace event
+cp -rp $EIFFEL_SOURCE/Src/$2/event event 
+remtrace gobo
+cp -rp $EIFFEL_SOURCE/Src/$2/gobo gobo
+fullrd gobo/svn/work
+remtrace gobo_extension
+cp -rp $EIFFEL_SOURCE/Src/$2/gobo_extension gobo_extension 
+remtrace graph
+cp -rp $EIFFEL_SOURCE/Src/$2/graph graph 
+remtrace i18n
+cp -rp $EIFFEL_SOURCE/Src/$2/i18n i18n
+remtrace lex
+cp -rp $EIFFEL_SOURCE/Src/$2/lex lex 
+remtrace memory_analyzer
+cp -rp $EIFFEL_SOURCE/Src/$2/memory_analyzer memory_analyzer 
+remtrace net
+cp -rp $EIFFEL_SOURCE/Src/$2/net net 
+remtrace objc_base
+cp -rp $EIFFEL_SOURCE/Src/$2/objc_base objc_base 
+remtrace parse
+cp -rp $EIFFEL_SOURCE/Src/$2/parse parse 
+remtrace patterns
+cp -rp $EIFFEL_SOURCE/Src/$2/patterns patterns 
+remtrace preferences
+cp -rp $EIFFEL_SOURCE/Src/$2/preferences preferences 
+remtrace process
+cp -rp $EIFFEL_SOURCE/Src/$2/process process 
+remtrace runtime
+cp -rp $EIFFEL_SOURCE/Src/$2/runtime runtime 
+remtrace store
+cp -rp $EIFFEL_SOURCE/Src/$2/store store 
+remtrace testing
+cp -rp $EIFFEL_SOURCE/Src/$2/testing testing
+remtrace text
+cp -rp $EIFFEL_SOURCE/Src/$2/text text 
+remtrace thread
+cp -rp $EIFFEL_SOURCE/Src/$2/thread thread 
+remtrace time
+cp -rp $EIFFEL_SOURCE/Src/$2/time time 
+remtrace uuid
+cp -rp $EIFFEL_SOURCE/Src/$2/uuid uuid 
+remtrace vision2
+cp -rp $EIFFEL_SOURCE/Src/$2/vision2 vision2 
+remtrace vision2_extension
+cp -rp $EIFFEL_SOURCE/Src/$2/vision2_extension vision2_extension
+remtrace web
+cp -rp $EIFFEL_SOURCE/Src/$2/web web 
+remtrace web_browser
+cp -rp $EIFFEL_SOURCE/Src/$2/web_browser web_browser 
+remtrace wel
+cp -rp $EIFFEL_SOURCE/Src/$2/wel wel 

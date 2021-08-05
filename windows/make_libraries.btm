@@ -1,0 +1,119 @@
+remtrace Retrieve libraries
+cdd %1
+md library
+cd library
+remtrace api_wrapper
+echo xcopy %EIFFEL_SOURCE%\Src\%2\api_wrapper api_wrapper /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\api_wrapper api_wrapper /E /I /Y > NUL
+remtrace argument_parser
+echo xcopy %EIFFEL_SOURCE%\Src\%2\argument_parser argument_parser /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\argument_parser argument_parser /E /I /Y > NUL
+remtrace base
+echo xcopy %EIFFEL_SOURCE%\Src\%2\base base /E /I /Y  
+xcopy %EIFFEL_SOURCE%\Src\%2\base base /E /I /Y  > NUL
+remtrace base_extension
+echo xcopy %EIFFEL_SOURCE%\Src\%2\base_extension base_extension /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\base_extension base_extension /E /I /Y > NUL
+remtrace cocoa
+echo xcopy %EIFFEL_SOURCE%\Src\%2\cocoa cocoa /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\cocoa cocoa /E /I /Y > NUL
+remtrace com
+echo xcopy %EIFFEL_SOURCE%\Src\%2\com com /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\com com /E /I /Y > NUL
+remtrace cURL
+echo xcopy %EIFFEL_SOURCE%\Src\%2\cURL cURL /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\cURL cURL /E /I /Y > NUL
+remtrace diff
+echo xcopy %EIFFEL_SOURCE%\Src\%2\diff diff /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\diff diff /E /I /Y > NUL
+remtrace docking
+echo xcopy %EIFFEL_SOURCE%\Src\%2\docking docking /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\docking docking /E /I /Y > NUL
+remtrace Eiffel2Java
+echo xcopy %EIFFEL_SOURCE%\Src\%2\Eiffel2Java Eiffel2Java /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\Eiffel2Java Eiffel2Java /E /I /Y > NUL
+remtrace editor
+echo xcopy %EIFFEL_SOURCE%\Src\%2\editor editor /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\editor editor /E /I /Y > NUL
+remtrace encoding
+echo xcopy %EIFFEL_SOURCE%\Src\%2\encoding encoding /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\encoding encoding /E /I /Y > NUL
+remtrace event
+echo xcopy %EIFFEL_SOURCE%\Src\%2\event event /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\event event /E /I /Y > NUL
+remtrace gobo
+echo xcopy %EIFFEL_SOURCE%\Src\%2\gobo gobo /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\gobo gobo /E /I /Y > NUL
+fullrd gobo\svn\work
+remtrace gobo_extension
+echo xcopy %EIFFEL_SOURCE%\Src\%2\gobo_extension gobo_extension /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\gobo_extension gobo_extension /E /I /Y > NUL
+remtrace graph
+echo xcopy %EIFFEL_SOURCE%\Src\%2\graph graph /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\graph graph /E /I /Y > NUL
+remtrace i18n
+echo xcopy %EIFFEL_SOURCE%\Src\%2\i18n i18n /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\i18n i18n /E /I /Y > NUL
+remtrace lex
+echo xcopy %EIFFEL_SOURCE%\Src\%2\lex lex /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\lex lex /E /I /Y > NUL
+remtrace memory_analyzer
+echo xcopy %EIFFEL_SOURCE%\Src\%2\memory_analyzer memory_analyzer /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\memory_analyzer memory_analyzer /E /I /Y > NUL
+remtrace net
+echo xcopy %EIFFEL_SOURCE%\Src\%2\net net /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\net net /E /I /Y > NUL
+remtrace objc_base
+echo xcopy %EIFFEL_SOURCE%\Src\%2\objc_base objc_base /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\objc_base objc_base /E /I /Y > NUL
+remtrace parse
+echo xcopy %EIFFEL_SOURCE%\Src\%2\parse parse /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\parse parse /E /I /Y > NUL
+remtrace patterns
+echo xcopy %EIFFEL_SOURCE%\Src\%2\patterns patterns /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\patterns patterns /E /I /Y > NUL
+remtrace preferences
+echo xcopy %EIFFEL_SOURCE%\Src\%2\preferences preferences /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\preferences preferences /E /I /Y > NUL
+remtrace process
+echo xcopy %EIFFEL_SOURCE%\Src\%2\process process /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\process process /E /I /Y > NUL
+remtrace ribbon
+echo xcopy %EIFFEL_SOURCE%\Src\%2\ribbon ribbon /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\ribbon ribbon /E /I /Y > NUL
+remtrace runtime
+echo xcopy %EIFFEL_SOURCE%\Src\%2\runtime runtime /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\runtime runtime /E /I /Y > NUL
+remtrace store
+echo xcopy %EIFFEL_SOURCE%\Src\%2\store store /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\store store /E /I /Y > NUL
+remtrace testing
+echo xcopy %EIFFEL_SOURCE%\Src\%2\testing testing /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\testing testing /E /I /Y > NUL
+remtrace text
+echo xcopy %EIFFEL_SOURCE%\Src\%2\text text /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\text text /E /I /Y > NUL
+remtrace thread
+echo xcopy %EIFFEL_SOURCE%\Src\%2\thread thread /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\thread thread /E /I /Y > NUL
+remtrace time
+echo xcopy %EIFFEL_SOURCE%\Src\%2\time time /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\time time /E /I /Y > NUL
+remtrace uuid
+echo xcopy %EIFFEL_SOURCE%\Src\%2\uuid uuid /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\uuid uuid /E /I /Y > NUL
+remtrace vision2
+echo xcopy %EIFFEL_SOURCE%\Src\%2\vision2 vision2 /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\vision2 vision2 /E /I /Y > NUL
+remtrace vision2_extension
+echo xcopy %EIFFEL_SOURCE%\Src\%2\vision2_extension vision2_extension /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\vision2_extension vision2_extension /E /I /Y > NUL
+remtrace web
+echo xcopy %EIFFEL_SOURCE%\Src\%2\web web /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\web web /E /I /Y > NUL
+remtrace web_browser
+echo xcopy %EIFFEL_SOURCE%\Src\%2\web_browser web_browser /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\web_browser web_browser /E /I /Y > NUL
+remtrace wel
+echo xcopy %EIFFEL_SOURCE%\Src\%2\wel wel /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\%2\wel wel /E /I /Y > NUL

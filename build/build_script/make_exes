@@ -1,0 +1,299 @@
+#!/bin/sh
+# EiffelStudio Community releases
+# Copyright (C) 2021 Eiffel Software and Louis M
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+
+
+# Setup environment
+INIT_DIR=`pwd`
+
+# These directories should already have been created by make_delivery. Whatever...
+safe_md $INSTALL_DIR/studio/spec
+safe_md $INSTALL_DIR/studio/spec/unix
+safe_md $INSTALL_DIR/studio/spec/unix/bin
+safe_md $INSTALL_DIR/studio/spec/unix/include
+safe_md $INSTALL_DIR/studio/spec/unix/lib
+safe_md $INSTALL_DIR/esbuilder/spec
+safe_md $INSTALL_DIR/esbuilder/spec/unix
+safe_md $INSTALL_DIR/esbuilder/spec/unix/bin
+
+remtrace Getting eweasel source code
+cd $EIFFEL_SRC
+safe_md $EIFFEL_SRC/eweasel
+cp -rp $EIFFEL_SOURCE/eweasel/source $EIFFEL_SRC/eweasel/source
+remtrace Compiling eweasel
+safe_md $INSTALL_DIR/eweasel
+safe_md $INSTALL_DIR/eweasel/spec
+safe_md $INSTALL_DIR/eweasel/spec/unix
+safe_md $INSTALL_DIR/eweasel/spec/unix/bin
+EWEASEL=$EIFFEL_SRC/eweasel
+export EWEASEL
+cd $EIFFEL_SRC/eweasel/source
+clean_project
+finalize eweasel.ecf eweasel_st
+tgz_ccode eweasel_st eweasel.tar.bz2
+if [ ! -f eweasel.tar.bz2 ]; then
+	echo Could not finalize eweasel
+	CANCEL
+fi
+clean_project
+finalize eweasel.ecf eweasel_mt
+tgz_ccode eweasel_mt eweasel-mt.tar.bz2
+if [ ! -f eweasel-mt.tar.bz2 ]; then
+	echo Could not finalize eweasel
+	CANCEL
+fi
+clean_project
+safe_md $EXPORT_DIR/eweasel
+move eweasel.tar.bz2 $EXPORT_DIR/eweasel
+move eweasel-mt.tar.bz2 $EXPORT_DIR/eweasel
+cd $EIFFEL_SRC/eweasel
+tgz source
+move source.tar.bz2 $EXPORT_DIR/eweasel
+
+remtrace Recompile Vision2 Tour
+cd $EIFFEL_SRC
+cp -rp $EIFFEL_SOURCE/Src/examples/vision2/widget_test vision2_demo
+cd $EIFFEL_SRC/vision2_demo
+safe_md $EXPORT_DIR/vision2_demo
+set -- -r $ORIGO_SVN_REVISION $DEFAULT_ORIGO_SVN
+. ./retrieve_build_files >> $INSTALL_LOG 2>&1
+. ./retrieve_flat_short >> $INSTALL_LOG 2>&1
+cd $EIFFEL_SRC/vision2_demo
+clean_project
+finalize vision2_demo.ecf vision2_demo
+tgz_ccode vision2_demo vision2_demo.tar.bz2
+if [ ! -f vision2_demo.tar.bz2 ]; then
+	echo Could not finalize a new Vision2 tour
+	CANCEL
+fi
+clean_project
+move $EIFFEL_SRC/vision2_demo/flatshort $INSTALL_DIR/vision2_demo
+move $EIFFEL_SRC/vision2_demo/tests $INSTALL_DIR/vision2_demo
+move $EIFFEL_SRC/vision2_demo/bitmaps/png/*.png $INSTALL_DIR/vision2_demo/bitmaps/png
+move vision2_demo.tar.bz2 $EXPORT_DIR/vision2_demo
+
+
+remtrace Recompile EiffelBuild
+cd $EIFFEL_SRC/build/Constants
+set -- $EIFFEL_SRC 0000 gb_about_dialog_constants.e
+. $INIT_DIR/set_version.sh
+cd $EIFFEL_SRC/build
+clean_project
+finalize esbuilder.ecf esbuilder
+tgz_ccode esbuilder esbuilder.tar.bz2
+if [ ! -f esbuilder.tar.bz2 ]; then
+	echo Could not finalize a new EiffelBuild
+	CANCEL
+fi
+clean_project
+safe_md $EXPORT_DIR/esbuilder
+move esbuilder.tar.bz2 $EXPORT_DIR/esbuilder
+
+if [ ! "$NO_NEW_EC" ]; then
+	safe_md $EXPORT_DIR/bin
+	remtrace Recompile EiffelStudio
+	remtrace GPL edition
+	if [ ! -d $FINALIZATION_DIR ]; then
+		md $FINALIZATION_DIR
+	fi
+	cd $EIFFEL_SRC/Eiffel/API/constants
+	set -- $EIFFEL_SRC 0000 system_constants.e
+	. $INIT_DIR/set_version.sh
+	cd $FINALIZATION_DIR
+	copy $EIFFEL_SRC/Eiffel/Ace/ec.ecf ec.ecf
+	clean_project
+	finalize ec.ecf bench
+	tgz_ccode bench ec.tar.bz2
+	if [ ! -f ec.tar.bz2 ]; then
+		echo Could not finalize a new EiffelStudio
+		CANCEL
+	fi
+	clean_project
+	move ec.tar.bz2 $EXPORT_DIR/bin/ec_community.tar.bz2
+
+	remtrace Batch version
+	clean_project
+	finalize ec.ecf batch
+	tgz_ccode batch ecb.tar.bz2
+	if [ ! -f ecb.tar.bz2 ]; then
+		echo Could not finalize a new batch version
+		CANCEL
+	fi
+	clean_project
+	move ecb.tar.bz2 $EXPORT_DIR/bin/ecb_community.tar.bz2
+
+	if [ "$MULTIPLE_EDITIONS" ]; then
+		remtrace Enterprise version edition
+		cd $FINALIZATION_DIR
+		cd $EIFFEL_SRC/Eiffel/API/constants
+		sed -e "s/Version_type_name:\ STRING\ =\ \"GPL\ Edition\"/Version_type_name:\ STRING\ =\ \"Enterprise\ Edition\"/g" system_constants.e >> new_system_constants.e
+		move new_system_constants.e system_constants.e
+		cd $FINALIZATION_DIR
+		copy $EIFFEL_SRC/tools/estudio_enterprise/ec.ecf ec.ecf
+		clean_project
+		finalize ec.ecf bench
+		tgz_ccode bench ec.tar.bz2
+		if [ ! -f ec.tar.bz2 ]; then
+			echo Could not finalize a new EiffelStudio
+			CANCEL
+		fi
+		clean_project
+		move ec.tar.bz2 $EXPORT_DIR/bin/ec_ent.tar.bz2
+
+		remtrace Batch version
+		clean_project
+		finalize ec.ecf batch
+		tgz_ccode batch ecb.tar.bz2
+		if [ ! -f ecb.tar.bz2 ]; then
+			echo Could not finalize a new batch version
+			CANCEL
+		fi
+		clean_project
+		move ecb.tar.bz2 $EXPORT_DIR/bin/ecb_ent.tar.bz2
+	fi
+else
+	# FIXME doesn't work.
+	quick_move studio/spec/$ISE_PLATFORM/bin/ec
+fi
+
+remtrace Recompile quick_finalize
+cd $EIFFEL_SRC/tools/quick_finalize
+clean_project
+finalize quick_finalize.ecf quick_finalize
+tgz_ccode quick_finalize quick_finalize.tar.bz2
+if [ ! -f quick_finalize.tar.bz2 ]; then
+	echo Could not finalize a new quick_finalize
+	CANCEL
+fi
+clean_project
+move quick_finalize.tar.bz2 $EXPORT_DIR/bin
+
+if [ "$MULTIPLE_EDITIONS" ]; then
+	remtrace Compiling CD key validator
+	cd $EIFFEL_SRC/tools
+	exprt $DEFAULT_ISE_SVN/Src/tools/cd_key_validator cd_key_validator 
+	if [ -d cd_key_validator ]; then
+		cd cd_key_validator/eiffel_studio_52
+		clean_project
+		finalize setup.ecf setup
+		tgz_ccode setup setup.tar.bz2
+		if [ ! -f setup.tar.bz2 ]; then
+			echo Could not finalize a new setup
+		else
+			move setup.tar.bz2 $EXPORT_DIR/bin
+		fi
+		clean_project
+	fi
+fi
+
+remtrace Recompile estudio
+cd $EIFFEL_SRC/tools/estudio/config
+clean_project
+finalize estudio.ecf estudio
+tgz_ccode estudio estudio.tar.bz2
+if [ ! -f estudio.tar.bz2 ]; then
+	echo Could not finalize a new estudio
+	CANCEL
+fi
+clean_project
+move estudio.tar.bz2 $EXPORT_DIR/bin
+
+cd $INIT_DIR
+. ./make_tools
+
+remtrace Compiling Gobo tools
+cd $EIFFEL_SRC/library/gobo/src
+clean_project
+remtrace geant
+finalize geant.ecf geant
+tgz_ccode geant geant.tar.bz2
+if [ ! -f geant.tar.bz2 ]; then
+    echo Could not finalize a new geant 
+    CANCEL
+fi
+clean_project
+move geant.tar.bz2 $EXPORT_DIR/bin
+
+remtrace gec
+finalize gec.ecf gec
+tgz_ccode gec gec.tar.bz2
+if [ ! -f gec.tar.bz2 ]; then
+	echo Could not finalize a new gec
+	CANCEL
+fi
+clean_project
+move gec.tar.bz2 $EXPORT_DIR/bin
+
+remtrace gelex
+finalize gelex.ecf gelex
+tgz_ccode gelex gelex.tar.bz2
+if [ ! -f gelex.tar.bz2 ]; then
+	echo Could not finalize a new gelex
+	CANCEL
+fi
+clean_project
+move gelex.tar.bz2 $EXPORT_DIR/bin
+
+remtrace gelint
+finalize gelint.ecf gelint
+tgz_ccode gelint gelint.tar.bz2
+if [ ! -f gelint.tar.bz2 ]; then
+	echo Could not finalize a new gelint
+	CANCEL
+fi
+clean_project
+move gelint.tar.bz2 $EXPORT_DIR/bin
+
+remtrace gepp
+finalize gepp.ecf gepp
+tgz_ccode gepp gepp.tar.bz2
+if [ ! -f gepp.tar.bz2 ]; then
+	echo Could not finalize a new gepp
+	CANCEL
+fi
+clean_project
+move gepp.tar.bz2 $EXPORT_DIR/bin
+
+remtrace getest
+finalize getest.ecf getest
+tgz_ccode getest getest.tar.bz2
+if [ ! -f getest.tar.bz2 ]; then
+	echo Could not finalize a new getest
+	CANCEL
+fi
+clean_project
+move getest.tar.bz2 $EXPORT_DIR/bin
+
+remtrace gexslt
+finalize gexslt.ecf gexslt
+tgz_ccode gexslt gexslt.tar.bz2
+if [ ! -f gexslt.tar.bz2 ]; then
+	echo Could not finalize a new gexslt
+	CANCEL
+fi
+clean_project
+move gexslt.tar.bz2 $EXPORT_DIR/bin
+
+remtrace geyacc
+finalize geyacc.ecf geyacc
+tgz_ccode geyacc geyacc.tar.bz2
+if [ ! -f geyacc.tar.bz2 ]; then
+	echo Could not finalize a new geyacc
+	CANCEL
+fi
+clean_project
+move geyacc.tar.bz2 $EXPORT_DIR/bin

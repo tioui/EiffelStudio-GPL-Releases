@@ -1,0 +1,42 @@
+REM Define some user parameters here if not yet defined.
+
+iff defined _SET_ALIAS_SET_ then
+	remtrace Script set_alias.btm was already called.
+	goto :eof
+endiff
+
+set _SET_ALIAS_SET_=1
+
+set STUDIO_VERSION_MAJOR_MINOR=19.12
+
+REM The file where all output is stored
+set INSTALL_LOG=%EIFFEL_OUTPUT%\install_%STUDIO_VERSION_MAJOR_MINOR%.log
+REM NB: The following directory is where a new version of ec.exe will be finalized.
+set FINALIZATION_DIR=%EIFFEL_OUTPUT%\%STUDIO_VERSION_MAJOR_MINOR%_deliv
+REM NB: The following directory must contain document.exe
+REM Tag to export files in SVN at ETHZ
+set DEFAULT_ORIGO_SVN=https://svn.eiffel.com/eiffelstudio/trunk
+REM Tag to export files in SVN at ISE
+set DEFAULT_ISE_SVN=svn://%USERNAME%@svn.ise/ise_svn/trunk
+REM NB: The following directory will be erased!
+set TMP_EIFFEL_SRC=%EIFFEL_OUTPUT%\tmpdev
+iff not defined ORIGO_SVN_REVISION then
+	set ORIGO_SVN_REVISION=HEAD
+endiff
+REM Where the new delivery is set up. Warning: if it exists, the directory will be erased!
+REM
+iff "%ISE_PLATFORM%" == "win64" then
+set INSTALL_DIR=%EIFFEL_OUTPUT%\InstalledEiffel_%STUDIO_VERSION_MAJOR_MINOR%
+else
+set INSTALL_DIR=%EIFFEL_OUTPUT%\InstalledEiffel_%STUDIO_VERSION_MAJOR_MINOR%_32
+endiff
+set STUDIO_DIR=%INSTALL_DIR\EiffelStudio
+set STUDIO_NAME=Eiffel_%STUDIO_VERSION_MAJOR_MINOR%
+
+REM Check for Windows 64 bits.
+iff "%ISE_PLATFORM%" == "win64" then
+	set WIN64=true
+endiff
+
+REM OK The rest is private, no need for you to see it :)
+call %INIT_DIR%\set_simple_aliases.btm

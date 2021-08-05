@@ -1,0 +1,5 @@
+Output/*
+!Output/.gitkeep
+build/Src
+build/Eiffel
+Releases

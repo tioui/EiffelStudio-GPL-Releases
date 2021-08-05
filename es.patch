@@ -1,0 +1,96 @@
+diff -urN EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e EiffelStudio_19.12_new/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e
+--- EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e	2021-08-04 19:31:32.708268535 -0400
++++ EiffelStudio_19.12_new/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e	2021-08-03 09:46:38.918039331 -0400
+@@ -18,11 +18,6 @@
+ 			{NONE} all
+ 		end
+ 
+-	SHARED_ES_CLOUD_SERVICE
+-		export
+-			{NONE} all
+-		end
+-
+ 	EV_SHARED_APPLICATION
+ 		export
+ 			{NONE} all
+@@ -244,7 +239,7 @@
+ 
+ 	display_launching_page
+ 		do
+-			if preferences.dialog_data.show_update_manager_dialog then
++			if False then
+ 				display_version_updater_check (agent display_startup_page)
+ 			else
+ 				display_startup_page
+diff -urN EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e EiffelStudio_19.12_new/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e
+--- EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e	2021-08-04 19:31:33.880291656 -0400
++++ EiffelStudio_19.12_new/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e	2021-08-03 09:51:14.256051573 -0400
+@@ -16,8 +16,6 @@
+ 
+ 	ES_SHARED_FONTS_AND_COLORS
+ 
+-	SHARED_ES_CLOUD_SERVICE
+-
+ create
+ 	make
+ 
+@@ -54,21 +52,6 @@
+ 				if not license_accepted then
+ 					switch_to_community_agreement_page
+ 					show_modal_to_window (win)
+-				elseif is_cloud_enabled then
+-					if is_logged_in then
+-						if
+-							attached es_cloud_s.service as cld and then
+-							attached cld.active_account as acc
+-						then
+-							cld.on_account_logged_in (acc)
+-						end
+-						on_next
+-					elseif {ES_IDE_SETTINGS}.cloud_required then
+-						switch_to_account_page
+-						show_modal_to_window (win)
+-					else
+-						on_next
+-					end
+ 				else
+ 					on_next
+ 				end
+@@ -235,17 +218,12 @@
+ 
+ 	is_cloud_enabled: BOOLEAN
+ 		do
+-			Result := es_cloud_s.service /= Void
++			Result := False
+ 		end
+ 
+ 	is_logged_in: BOOLEAN
+ 		do
+-			if attached es_cloud_s.service as cld then
+-				Result := cld.active_account /= Void
+-			else
+-					-- ES Cloud is not activated!
+-				Result := True
+-			end
++			Result := True
+ 		end
+ 
+ feature -- Text
+@@ -288,15 +266,7 @@
+ 			preferences.misc_data.set_license_accepted (True)
+ 				-- Save preferences right away.
+ 			preferences.preferences.save_preferences
+-			if is_cloud_enabled then
+-				if is_logged_in then
+-					on_next
+-				else
+-					switch_to_account_page
+-				end
+-			else
+-				on_next
+-			end
++			on_next
+ 		end
+ 
+ 	on_purchase_selected
+Les fichiers binaires EiffelStudio_19.12/.svn/wc.db et EiffelStudio_19.12_new/.svn/wc.db sont différents

@@ -1,0 +1,30 @@
+remtrace Retrieve unstable libraries
+cdd %1
+md unstable
+cd unstable
+
+remtrace README.txt
+echo xcopy %EIFFEL_SOURCE%\Src\unstable\README.txt README.txt* /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\unstable\README.txt README.txt* /E /I /Y > NUL
+
+remtrace library
+echo xcopy %EIFFEL_SOURCE%\Src\unstable\library library /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\unstable\library library /E /I /Y > NUL
+
+remtrace Retrieve contrib libraries and examples
+cdd %1
+md contrib
+cd contrib
+
+remtrace README.txt
+echo xcopy %EIFFEL_SOURCE%\Src\contrib\README.txt README.txt* /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\contrib\README.txt README.txt* /E /I /Y > NUL
+
+remtrace library
+echo xcopy %EIFFEL_SOURCE%\Src\contrib\library library /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\contrib\library library /E /I /Y > NUL
+
+remtrace examples
+echo xcopy %EIFFEL_SOURCE%\Src\contrib\examples examples /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\contrib\examples examples /E /I /Y > NUL
+

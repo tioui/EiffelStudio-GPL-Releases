@@ -1,0 +1,18 @@
+#!/bin/sh
+
+
+# Copy template files
+cp -r $EIFFEL_SOURCE/Src/Delivery/vision2_demo/templates ./
+
+# Copy icons for different widget types across.
+cp -r $EIFFEL_SOURCE/Src/Delivery/esbuilder/bitmaps ./
+
+# Copy icons for standard buttons.
+cp $EIFFEL_SOURCE/Src/Delivery/vision2_demo/bitmaps/png/documentation.png ./bitmaps/png/
+cp $EIFFEL_SOURCE/Src/Delivery/vision2_demo/bitmaps/png/testing.png ./bitmaps/png/
+cp $EIFFEL_SOURCE/Src/Delivery/vision2_demo/bitmaps/png/properties.png ./bitmaps/png/
+cp $EIFFEL_SOURCE/Src/Delivery/vision2_demo/bitmaps/png/size_down.png ./bitmaps/png/
+cp $EIFFEL_SOURCE/Src/Delivery/vision2_demo/bitmaps/png/size_up.png ./bitmaps/png/
+cp $EIFFEL_SOURCE/Src/Delivery/vision2_demo/bitmaps/png/image1.png ./bitmaps/png/
+cp $EIFFEL_SOURCE/Src/Delivery/vision2_demo/bitmaps/png/image2.png ./bitmaps/png/
+

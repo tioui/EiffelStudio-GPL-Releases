@@ -1,0 +1,128 @@
+remtrace Should be called by make_exes.btm
+
+remtrace Create tools directory for your platform.
+safe_md %STUDIO_DIR\tools
+safe_md %STUDIO_DIR\tools\spec
+safe_md %STUDIO_DIR\tools\spec\%ISE_PLATFORM
+safe_md %STUDIO_DIR\tools\spec\%ISE_PLATFORM\bin
+
+remtrace Recompile iron
+cdd %EIFFEL_SRC\tools\iron\client
+clean_project
+finalize client.ecf es_iron
+cleanup_eiffel es_iron iron.exe
+iff not exist iron.exe then
+	remtrace Could not finalize a new iron
+	CANCEL
+endiff
+move iron.exe %STUDIO_DIR\tools\spec\%ISE_PLATFORM\bin
+copy %STUDIO_DIR\studio\spec\%ISE_PLATFORM\bin\libcurl.dll %STUDIO_DIR\tools\spec\%ISE_PLATFORM\bin\
+copy %STUDIO_DIR\studio\spec\%ISE_PLATFORM\bin\libeay32.dll %STUDIO_DIR\tools\spec\%ISE_PLATFORM\bin\
+copy %STUDIO_DIR\studio\spec\%ISE_PLATFORM\bin\ssleay32.dll %STUDIO_DIR\tools\spec\%ISE_PLATFORM\bin\
+
+remtrace Recompile syntax_updater
+cdd %EIFFEL_SRC\tools\syntax_updater
+clean_project
+finalize syntax_updater.ecf
+cleanup_eiffel syntax_updater syntax_updater.exe
+iff not exist syntax_updater.exe then
+	remtrace Could not finalize a new syntax_updater
+	CANCEL
+endiff
+move syntax_updater.exe %STUDIO_DIR\tools\spec\%ISE_PLATFORM\bin
+
+remtrace Recompile espawn
+cdd %EIFFEL_SRC\tools\espawn
+clean_project
+finalize espawn.ecf
+cleanup_eiffel espawn espawn.exe
+iff not exist espawn.exe then
+	remtrace Could not finalize a new espawn
+	CANCEL
+endiff
+move espawn.exe %STUDIO_DIR\tools\spec\%ISE_PLATFORM\bin
+
+remtrace Recompile compile_all
+cdd %EIFFEL_SRC\tools\compile_all
+clean_project
+finalize compile_all.ecf
+cleanup_eiffel compile_all compile_all.exe
+iff not exist compile_all.exe then
+	remtrace Could not finalize a new compile_all
+	CANCEL
+endiff
+move compile_all.exe %STUDIO_DIR\tools\spec\%ISE_PLATFORM\bin
+
+remtrace Recompile eiffel tool
+cdd %EIFFEL_SRC\tools\eiffel_script
+clean_project
+finalize eiffel_script.ecf
+cleanup_eiffel eiffel_script eiffel.exe
+iff not exist eiffel.exe then
+	remtrace Could not finalize a new eiffel tool
+	CANCEL
+endiff
+move eiffel.exe %STUDIO_DIR\tools\spec\%ISE_PLATFORM\bin
+
+remtrace Recompile eiffel_image_embedder
+cdd %EIFFEL_SRC\tools\eiffel_image_embedder
+clean_project
+finalize eimgemb.ecf
+cleanup_eiffel eiffel_image_embedder eimgemb.exe
+iff not exist eimgemb.exe then
+	remtrace Could not finalize a new eiffel_image_embedder
+	CANCEL
+endiff
+move eimgemb.exe %STUDIO_DIR\tools\spec\%ISE_PLATFORM\bin
+
+remtrace Recompile eiffel_echo
+cdd %EIFFEL_SRC\tools\eiffel_echo
+clean_project
+finalize eiffel_echo.ecf
+cleanup_eiffel eiffel_echo eiffel_echo.exe
+iff not exist eiffel_echo.exe then
+	remtrace Could not finalize a new eiffel_echo
+	CANCEL
+endiff
+move eiffel_echo.exe %STUDIO_DIR\tools\spec\%ISE_PLATFORM\bin
+
+remtrace Recompile po_generation_tool
+cdd %EIFFEL_SRC\tools\po_generation_tool
+clean_project
+finalize po_generation_tool.ecf
+cleanup_eiffel po_generation_tool po_generation_tool.exe
+iff not exist po_generation_tool.exe then
+	remtrace Could not finalize a new po_generation_tool
+	CANCEL
+endiff
+move po_generation_tool.exe %STUDIO_DIR\tools\spec\%ISE_PLATFORM\bin
+
+remtrace Recompile eiffel_ribbon
+safe_md %STUDIO_DIR\tools\ribbon
+cdd %STUDIO_DIR\tools\ribbon
+echo xcopy %EIFFEL_SOURCE%\Src\tools\eiffel_ribbon\template template /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\tools\eiffel_ribbon\template template /E /I /Y > NUL
+echo xcopy %EIFFEL_SOURCE%\Src\tools\eiffel_ribbon\images images /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\tools\eiffel_ribbon\images images /E /I /Y > NUL
+cdd %EIFFEL_SRC\tools\eiffel_ribbon
+clean_project
+finalize eiffel_ribbon.ecf
+cleanup_eiffel eiffel_ribbon eiffel_ribbon.exe
+iff not exist eiffel_ribbon.exe then
+	remtrace Could not finalize a new eiffel_ribbon
+	CANCEL
+endiff
+move eiffel_ribbon.exe %STUDIO_DIR\tools\spec\%ISE_PLATFORM\bin
+
+remtrace Recompile ace2ecf
+cdd %EIFFEL_SRC\tools\ace2ecf
+clean_project
+finalize ace2ecf.ecf
+cleanup_eiffel ace2ecf ace2ecf.exe
+iff not exist ace2ecf.exe then
+	remtrace Could not finalize a new ace2ecf
+	CANCEL
+endiff
+move ace2ecf.exe %STUDIO_DIR\tools\spec\%ISE_PLATFORM\bin
+
+

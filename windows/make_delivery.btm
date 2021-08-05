@@ -1,0 +1,361 @@
+@echo off
+iff not defined EIFFEL_OUTPUT then
+	echo Variable EIFFEL_OUTPUT must be defined.
+	CANCEL
+endiff
+iff not defined EIFFEL_SOURCE then
+	echo Variable EIFFEL_SOURCE must be defined.
+	CANCEL
+endiff
+
+
+if not isdir %EIFFEL_OUTPUT% md %EIFFEL_OUTPUT%
+
+REM Adding Wix to the path.
+set PATH=%PATH;%@EXECSTR[cd]\wix
+set OLD_PATH=%PATH
+set OLD_EIFFEL_SRC=%EIFFEL_SRC
+set OLD_ISE_LIBRARY=%ISE_LIBRARY
+set OLD_ISE_SRC=%ISE_SRC
+set INIT_DIR=%@EXECSTR[cd]
+set TMP_ISE_EIFFEL=%ISE_EIFFEL
+
+call set_aliases.btm
+REM This is not a comment, it should create a 0-sized log file.
+REM > %INSTALL_LOG
+remtrace Set up the environment
+on break goto broken
+TIMER ON /1 >> NUL
+TIMER ON /2 >> NUL
+iff %@INDEX[%@LOWER[%$],h] ge 0 then
+	echo Installation for ISE Eiffel 5 generation.
+	echo Parameters are no_compile, no_new_ec, no_wizards and no_install (or nothing to fully regenerate the installation).
+	CANCEL
+endiff
+iff %@INDEX[%@LOWER[%$],no_compile] ge 0 then
+	set NO_COMPILE="True"
+else
+	unset /Q NO_COMPILE
+endiff
+iff %@INDEX[%@LOWER[%$],no_install] ge 0 then
+	set NO_INSTALL="True"
+else
+	unset /Q NO_INSTALL
+endiff
+iff %@INDEX[%@LOWER[%$],no_new_ec] ge 0 then
+	set NO_NEW_EC="True"
+else
+	unset /Q NO_NEW_EC
+endiff
+iff %@INDEX[%@LOWER[%$],no_wizard] ge 0 then
+	set NO_WIZARDS="True"
+else
+	unset /Q NO_WIZARDS
+endiff
+
+set EIFFEL_SRC=%TMP_EIFFEL_SRC
+set ISE_LIBRARY=%TMP_EIFFEL_SRC
+set ISE_SRC=%TMP_EIFFEL_SRC
+cdd %INIT_DIR
+remtrace Approximative starting time:
+remtrace %_TIME
+
+call check_environment.btm
+cdd %INIT_DIR
+
+remtrace Retrieve and organize the delivery
+remtrace Remove %INSTALL_DIR
+if isdir %INSTALL_DIR fullrd %INSTALL_DIR >>& %INSTALL_LOG
+if exist %INSTALL_DIR fullrf %INSTALL_DIR >>& %INSTALL_LOG
+iff exist %INSTALL_DIR then
+	echo Cannot delete %INSTALL_DIR!
+	CANCEL
+endiff
+md %FINALIZATION_DIR
+md %TMP_EIFFEL_SRC
+md %INSTALL_DIR
+md %STUDIO_DIR
+cdd %STUDIO_DIR
+remtrace studio
+echo xcopy %EIFFEL_SOURCE%\Src\Delivery\studio studio /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\Delivery\studio studio /E /I /Y > NUL
+fullrd studio\bitmaps\src
+fullrd studio\help\defaults\unix
+fullrd studio\spec\unix
+cdd %STUDIO_DIR\studio\spec
+move windows\compile_library.bat %ISE_PLATFORM\bin\
+move windows\mkdir.bat %ISE_PLATFORM\bin\
+iff "windows"=="%ISE_PLATFORM" then
+	fullrd win64
+else
+	fullrd windows
+endiff
+cdd %STUDIO_DIR\studio\config
+if not "windows"=="%ISE_PLATFORM" ren windows %ISE_PLATFORM
+cdd %STUDIO_DIR\studio\config\%ISE_PLATFORM%\
+xcopy msc msc_vc140 /E /I /Y > NUL
+
+safe_md %STUDIO_DIR\tools
+cdd %STUDIO_DIR\tools
+echo xcopy %EIFFEL_SOURCE%\Src\tools\iron\delivery\iron iron /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\tools\iron\delivery\iron iron /E /I /Y > NUL
+cdd %STUDIO_DIR\tools\iron\spec
+if not "windows"=="%ISE_PLATFORM" ren windows %ISE_PLATFORM
+fullrd unix
+
+cdd %STUDIO_DIR\studio\lang
+fullrd po_files
+fullrd script
+cdd %STUDIO_DIR
+remtrace esbuilder
+echo xcopy %EIFFEL_SOURCE%\Src\Delivery\esbuilder esbuilder  /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\Delivery\esbuilder esbuilder  /E /I /Y > NUL
+remtrace vision2 tour
+echo xcopy %EIFFEL_SOURCE%\Src\Delivery\vision2_demo vision2_demo  /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\Delivery\vision2_demo vision2_demo  /E /I /Y > NUL
+remtrace examples
+echo xcopy %EIFFEL_SOURCE%\Src\examples examples  /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\examples examples  /E /I /Y > NUL
+cd examples
+fullrd obsolete
+fullrd eiffeltest
+fullrd iphone
+fullrd libevent
+fullrd math
+fullrd matisse
+fullrd store\matisse
+fullrd old_com
+fullrd old_matisse
+fullrd vision
+fullrd build
+cd dotnet
+fullrd envision
+fullrd winforms\data\simple_binding
+cd ..
+cd vision2
+fullrd Boxes
+fullrd drawing_area
+fullrd ev_list
+fullrd fake_event
+fullrd figure
+fullrd hello_world
+fullrd menu
+fullrd multicolumn_list
+fullrd pixmap
+fullrd split_area
+fullrd test_all_widgets
+fullrd test_events
+fullrd tests
+fullrd tutorial
+fullrd widget_test
+cd ..
+cd ..
+remtrace precomp
+safe_md %STUDIO_DIR\experimental
+safe_md %STUDIO_DIR\experimental\precomp
+safe_md %STUDIO_DIR\experimental\precomp\spec
+cd %STUDIO_DIR\experimental\precomp\spec
+echo xcopy %EIFFEL_SOURCE%\Src\Delivery\precomp\spec\platform %ISE_PLATFORM /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\Delivery\precomp\spec\platform %ISE_PLATFORM /E /I /Y > NUL
+echo xcopy %EIFFEL_SOURCE%\Src\Delivery\precomp\spec\dotnet %ISE_PLATFORM-dotnet /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\Delivery\precomp\spec\dotnet %ISE_PLATFORM-dotnet /E /I /Y > NUL
+cdd %ISE_PLATFORM
+fullrf *-safe.ecf
+cdd ..\%ISE_PLATFORM-dotnet
+fullrf *-safe.ecf
+safe_md %STUDIO_DIR\precomp
+safe_md %STUDIO_DIR\precomp\spec
+cd %STUDIO_DIR\precomp\spec
+echo xcopy %EIFFEL_SOURCE%\Src\Delivery\precomp\spec\platform %ISE_PLATFORM /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\Delivery\precomp\spec\platform %ISE_PLATFORM /E /I /Y > NUL
+echo xcopy %EIFFEL_SOURCE%\Src\Delivery\precomp\spec\dotnet %ISE_PLATFORM-dotnet /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\Delivery\precomp\spec\dotnet %ISE_PLATFORM-dotnet /E /I /Y > NUL
+cdd %STUDIO_DIR
+remtrace wizards
+echo xcopy %EIFFEL_SOURCE%\Src\Delivery\wizards wizards /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\Delivery\wizards wizards /E /I /Y > NUL
+fullrf %STUDIO_DIR\studio\wizards\new_projects\wizard.dsc
+fullrd %STUDIO_DIR\studio\wizards\new_projects\wizard
+echo xcopy %EIFFEL_SOURCE%\Src\help\wizards\ewf\rootdir %STUDIO_DIR\studio\wizards\new_projects\ewf /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\help\wizards\ewf\rootdir %STUDIO_DIR\studio\wizards\new_projects\ewf /E /I /Y > NUL
+move %STUDIO_DIR\studio\wizards\new_projects\ewf\ewf.dsc %STUDIO_DIR\studio\wizards\new_projects\ewf.dsc
+echo xcopy %EIFFEL_SOURCE%\Src\help\wizards\library\rootdir %STUDIO_DIR\studio\wizards\new_projects\library /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\help\wizards\library\rootdir %STUDIO_DIR\studio\wizards\new_projects\library /E /I /Y > NUL
+move %STUDIO_DIR\studio\wizards\new_projects\library\library.dsc %STUDIO_DIR\studio\wizards\new_projects\library.dsc
+
+remtrace C_library
+safe_md %STUDIO_DIR\C_library
+cdd %STUDIO_DIR\C_library
+echo xcopy %EIFFEL_SOURCE%\Src\C_library\libpng libpng /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\C_library\libpng libpng /E /I /Y > NUL
+echo xcopy %EIFFEL_SOURCE%\Src\C_library\zlib zlib /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\C_library\zlib zlib /E /I /Y > NUL
+echo xcopy %EIFFEL_SOURCE%\Src\C_library\curl curl /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\C_library\curl curl /E /I /Y > NUL
+safe_md openssl
+echo xcopy %EIFFEL_SOURCE%\Src\C_library\openssl\clibs_openssl.ecf openssl /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\C_library\openssl\clibs_openssl.ecf openssl /E /I /Y > NUL
+echo xcopy %EIFFEL_SOURCE%\Src\C_library\openssl\include openssl\include /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\C_library\openssl\include openssl\include /E /I /Y > NUL
+cdd %STUDIO_DIR\experimental
+echo xcopy %EIFFEL_SOURCE%\Src\experimental\C_library C_library /E /I /Y
+xcopy %EIFFEL_SOURCE%\Src\experimental\C_library C_library /E /I /Y > NUL
+cdd %STUDIO_DIR
+remtrace root
+echo xcopy %EIFFEL_SOURCE%\Src\Delivery Delivery /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\Delivery Delivery /E /I /Y > NUL
+move Delivery\*.* . >>& %INSTALL_LOG
+fullrd Delivery >>& %INSTALL_LOG
+fullrf INSTALL README make_install compile_libraries
+remtrace eweasel (just the necessary)
+echo xcopy %EIFFEL_SOURCE%\eweasel eweasel /E /I /Y 
+xcopy %EIFFEL_SOURCE%\eweasel eweasel /E /I /Y > NUL
+echo xcopy %EIFFEL_SOURCE%\eweasel\bin eweasel\bin /E /I /Y 
+xcopy %EIFFEL_SOURCE%\eweasel\bin eweasel\bin /E /I /Y > NUL
+echo xcopy %EIFFEL_SOURCE%\eweasel\control eweasel\control /E /I /Y 
+xcopy %EIFFEL_SOURCE%\eweasel\control eweasel\control /E /I /Y > NUL
+fullrf %STUDIO_DIR\eweasel\INSTALL
+
+remtrace MinGW files
+cdd %STUDIO_DIR
+safe_md gcc
+cd gcc
+echo xcopy %EIFFEL_SOURCE%\free_add_ons\gcc\%ISE_PLATFORM% %ISE_PLATFORM% /E /I /Y 
+xcopy %EIFFEL_SOURCE%\free_add_ons\gcc\%ISE_PLATFORM% %ISE_PLATFORM% /E /I /Y > NUL
+
+remtrace Create directories
+cdd %STUDIO_DIR
+safe_md %STUDIO_DIR\studio\spec
+safe_md %STUDIO_DIR\studio\spec\%ISE_PLATFORM
+safe_md %STUDIO_DIR\esbuilder\spec
+safe_md %STUDIO_DIR\esbuilder\spec\%ISE_PLATFORM
+safe_md %STUDIO_DIR\esbuilder\spec\%ISE_PLATFORM\bin
+safe_md %STUDIO_DIR\vision2_demo\spec
+safe_md %STUDIO_DIR\vision2_demo\spec\%ISE_PLATFORM
+safe_md %STUDIO_DIR\vision2_demo\spec\%ISE_PLATFORM\bin
+safe_md %STUDIO_DIR\wizards
+safe_md %STUDIO_DIR\wizards\com
+safe_md %STUDIO_DIR\wizards\com\config
+safe_md %STUDIO_DIR\studio\spec\%ISE_PLATFORM\include
+safe_md %STUDIO_DIR\studio\spec\%ISE_PLATFORM\lib
+safe_md %STUDIO_DIR\studio\spec\%ISE_PLATFORM\lib\msc
+safe_md %STUDIO_DIR\studio\spec\%ISE_PLATFORM\lib\msc_vc140
+safe_md %STUDIO_DIR\studio\spec\%ISE_PLATFORM\lib\mingw
+safe_md %STUDIO_DIR\rb
+
+give_time_to organize the delivery and to start filling it
+
+remtrace Checkout all the libraries
+cdd %INIT_DIR
+call make_libraries.btm %STUDIO_DIR library
+cdd %INIT_DIR
+call make_libraries.btm %STUDIO_DIR\experimental experimental\library
+cdd %INIT_DIR
+call make_other_libraries.btm %STUDIO_DIR
+
+remtrace Compile C code of Eiffel Software C libraries
+cdd %INIT_DIR
+espawn -u:VC140 "%COMSPEC% /c compile_c_libraries.btm %STUDIO_DIR msc_vc140"
+cdd %INIT_DIR
+espawn -u:%ISE_C_COMPILER_VER% "%COMSPEC% /c compile_c_libraries.btm %STUDIO_DIR msc"
+cdd %INIT_DIR
+call compile_c_libraries.btm %STUDIO_DIR mingw
+
+cdd %INIT_DIR
+espawn -u:VC140 "%COMSPEC% /c compile_c_libraries.btm %STUDIO_DIR\experimental msc_vc140"
+cdd %INIT_DIR
+espawn -u:%ISE_C_COMPILER_VER% "%COMSPEC% /c compile_c_libraries.btm %STUDIO_DIR\experimental msc"
+cdd %INIT_DIR
+call compile_c_libraries.btm %STUDIO_DIR\experimental mingw
+
+
+remtrace Build the C libraries of non-Eiffel Software C libraries
+cdd %INIT_DIR
+espawn -u:VC140 "%COMSPEC% /c compile_other_c_libraries.btm %STUDIO_DIR msc_vc140"
+cdd %INIT_DIR
+espawn -u:%ISE_C_COMPILER_VER% "%COMSPEC% /c compile_other_c_libraries.btm %STUDIO_DIR msc"
+cdd %INIT_DIR
+call compile_other_c_libraries.btm %STUDIO_DIR mingw
+
+cdd %INIT_DIR
+
+REM Fill directories
+iff not defined NO_COMPILE then
+	remtrace Update all libraries
+	iff isdir %EIFFEL_SRC then
+		remtrace Delete %EIFFEL_SRC
+		fullrd %EIFFEL_SRC
+	endiff
+	safe_md %EIFFEL_SRC
+
+	REM Clean up the files
+	remtrace Update all source files.
+	cdd %EIFFEL_SRC\..
+	echo xcopy %EIFFEL_SOURCE%\Src\* %EIFFEL_SRC\ /E /I /Y 
+	xcopy %EIFFEL_SOURCE%\Src\* %EIFFEL_SRC\ /E /I /Y > NUL
+
+	remtrace Build the normal libraries
+	cdd %INIT_DIR
+	call update_libraries.btm %EIFFEL_SRC
+	remtrace Build the experimental libraries
+	cdd %INIT_DIR
+	call update_libraries.btm %EIFFEL_SRC\experimental
+
+	cdd %INIT_DIR
+	give_time_to update libraries
+
+	remtrace Generate needed executables of the bin directory
+	call make_exes.btm
+	cdd %INIT_DIR
+	give_time_to compile exes
+
+	iff not defined NO_WIZARDS then
+		remtrace Generate the precompilation and the "new project" wizards
+		echo xcopy make_a_wizard.btm %EIFFEL_SRC\help\wizards\ /E /I /Y
+		xcopy make_a_wizard.btm %EIFFEL_SRC\help\wizards\ /E /I /Y < NUL
+		call make_wizards.btm
+		cdd %INIT_DIR
+		give_time_to compile basic wizards
+
+		remtrace Generate the COM wizard
+		call make_com_wizard.btm
+		cdd %INIT_DIR
+		give_time_to compile the COM wizard
+	else
+		quick_move /s studio\wizards
+		quick_move /s wizards
+	endiff
+
+	cdd %INIT_DIR
+
+	remtrace Generate Resource Bench
+	call make_rb.btm
+	cdd %INIT_DIR
+	give_time_to compile Resource Bench
+else
+	remtrace Copy executable files from the old delivery
+	quick_move /s studio\spec
+	quick_move /s studio\wizards
+	quick_move /s rb
+	quick_move /s wizards
+	cdd %STUDIO_DIR
+	give_time_to copy executables from the old delivery
+endiff
+
+cdd %INIT_DIR
+
+iff not defined NO_INSTALL then
+	espawn -u:%ISE_C_COMPILER_VER% "%COMSPEC% /c make_installations.btm"
+	cdd %INIT_DIR
+endiff
+
+REM Finish
+remtrace final time:
+remtrace %_TIME
+remtrace total used time:
+remtrace %@TIMER[2]
+
+REM Error handling and normal ending
+:broken
+CANCEL
+

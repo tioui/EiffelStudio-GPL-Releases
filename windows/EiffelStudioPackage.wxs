@@ -1,0 +1,261 @@
+<?xml version="1.0"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+	<?include ..\..\includes\Preprocessors.wxi?>
+	<?ifdef EiffelStudio?>
+
+	<!--
+		This include document is included under the Package node so you are free to define new directories, properties and features.
+		Note: A directory is created for INSTALLDIR and TARGETDIR so please use DirectoryRef to reference them.
+	-->
+	<Fragment>
+
+		<!-- PROPERTIES -->
+		<Property Id="GDIPLUSNEEDED">1</Property>
+		<Property Id="SHORTCUTPATH"><![CDATA[hh]]></Property>
+		<Property Id="ISELANG">en_US</Property>
+		<!-- END PROPERTIES -->
+
+		<!-- PACKAGE CONTENT -->
+		<DirectoryRef Id="INSTALLDIR">
+			<Component Id="Comp.studio_registries" Guid="$(var.RegistriesGuid)" Win64="$(var.IsWin64)">
+					<!-- Registry settings for installation program -->
+				<RegistryKey Id="Reg.uninstall_product" Root="HKLM"	Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\[ProductCode]" Action="createAndRemoveOnUninstall">
+					<RegistryValue Id="RegVal.display_icon" Name="DisplayIcon" Type="string" Value="[INSTALLDIR]studio\spec\$(var.IsePlatform)\bin\estudio.exe,0" KeyPath="yes"/>
+				</RegistryKey>
+					<!-- Registry settings for EiffelStudio and other tools-->
+				<RegistryKey Id="Reg.eiffel" Root="HKLM" Key="Software\ISE\$(var.ProductKey)" Action="createAndRemoveOnUninstall">
+					<RegistryValue Id="RegVal.eiffel.ise_eiffel" Name="ISE_EIFFEL" Value="[INSTALLDIR]" Type="string"/>
+					<RegistryValue Id="RegVal.eiffel.ise_c_compiler" Name="ISE_C_COMPILER" Value="[C_CONFIG_NAME]" Type="string"/>
+					<RegistryValue Id="RegVal.eiffel.ise_platform" Name="ISE_PLATFORM" Value="$(var.IsePlatform)" Type="string"/>
+					<RegistryValue Id="RegVal.eiffel.ise_lang" Name="ISE_LANG" Value="[ISELANG]" Type="string"/>
+				</RegistryKey>
+				<RegistryKey Id="Reg.eiffel.finish_freezing" Root="HKLM" Key="Software\ISE\$(var.ProductKey)\finish_freezing" Action="createAndRemoveOnUninstall">
+					<RegistryValue Id="RegVal.eiffel.ff.ise_cflags" Name="ISE_CFLAGS" Value="" Type="string"/>
+					<RegistryValue Id="RegVal.eiffel.ff.ise_sharedlibs" Name="ISE_SHAREDLIBS" Value="" Type="string"/>
+				</RegistryKey>
+					<!-- Registry settings for .NET consumer -->
+				<RegistryKey Id="Reg.CCManager" Root="HKCR" Key="EiffelSoftware.MetadataConsumer.Interop.COM_CACHE_MANAGER" Action="createAndRemoveOnUninstall">
+					<RegistryValue Id="RegVal.CCManager" Value="EiffelSoftware.MetadataConsumer.Interop.COM_CACHE_MANAGER" Type="string">
+					</RegistryValue>
+				</RegistryKey>
+				<RegistryKey Id="Reg.CCManager.clsid" Root="HKCR" Key="EiffelSoftware.MetadataConsumer.Interop.COM_CACHE_MANAGER\CLSID" Action="createAndRemoveOnUninstall">
+					<RegistryValue Id="RegVal.CCManager.clsid" Value="{64E0AD08-417E-4243-B533-561A05F4B5E6}" Type="string">
+					</RegistryValue>
+				</RegistryKey>
+				<RegistryKey Id="Reg.clsid" Root="HKCR" Key="CLSID\{64E0AD08-417E-4243-B533-561A05F4B5E6}" Action="createAndRemoveOnUninstall">
+					<RegistryValue Id="RegVal.clsid.default" Value="EiffelSoftware.MetadataConsumer.Interop.COM_CACHE_MANAGER" Type="string"/>
+					<RegistryKey Id="Reg.clsid.1" Key="Implemented Categories\{62C8FE65-4EBB-45e7-B440-6E39B2CDBF29}" Action="createAndRemoveOnUninstall" />
+					<RegistryKey Id="Reg.clsid.2" Key="InprocServer32" Action="createAndRemoveOnUninstall" >
+						<RegistryValue Id="RegVal.clsid.inproc.1" Value="mscoree.dll" Type="string"/>
+						<RegistryValue Id="RegVal.clsid.inproc.2" Name="ThreadingModel" Value="Both" Type="string"/>
+						<RegistryValue Id="RegVal.clsid.inproc.3" Name="Class" Value="EiffelSoftware.MetadataConsumer.Interop.COM_CACHE_MANAGER" Type="string"/>
+						<RegistryValue Id="RegVal.clsid.inproc.4" Name="Assembly" Value="EiffelSoftware.MetadataConsumer, Version=7.2.9.376, Culture=neutral, PublicKeyToken=def26f296efef469" Type="string"/>
+						<RegistryValue Id="RegVal.clsid.inproc.5" Name="RuntimeVersion" Value="v2.0.50727" Type="string"/>
+						<RegistryKey Id="Reg.clsid.3" Key="7.2.9.376" Action="createAndRemoveOnUninstall" >
+							<RegistryValue Id="RegVal.clsid.inproc.version.1" Name="Class" Value="EiffelSoftware.MetadataConsumer.Interop.COM_CACHE_MANAGER" Type="string"/>
+							<RegistryValue Id="RegVal.clsid.inproc.version.2" Name="Assembly" Value="EiffelSoftware.MetadataConsumer, Version=7.2.9.376, Culture=neutral, PublicKeyToken=def26f296efef469" Type="string"/>
+							<RegistryValue Id="RegVal.clsid.inproc.version.3" Name="RuntimeVersion" Value="v2.0.50727" Type="string"/>
+						</RegistryKey>
+					</RegistryKey>
+					<RegistryKey Id="Reg.clsid.4" Key="ProgId" Action="createAndRemoveOnUninstall" >
+						<RegistryValue Id="RegVal.clsid.progid" Value="EiffelSoftware.MetadataConsumer.Interop.COM_CACHE_MANAGER" Type="string"/>
+					</RegistryKey>
+				</RegistryKey>
+				<RegistryKey Id="Reg.VS" Root="HKLM" Key="SOFTWARE\Microsoft\.NETFramework\AssemblyFolders\[ProductName]" Action="createAndRemoveOnUninstall">
+					<RegistryValue Id="RegVal.VS" Value="[INSTALLDIR]\studio\spec\$(var.IsePlatform)\lib\" Type="string"/>
+				</RegistryKey>
+					<!-- Registry settings for eiffel protocol -->
+				<RegistryKey Id="Reg.eiffel_protocol" Root="HKCR" Key="eiffel" Action="createAndRemoveOnUninstall">
+					<RegistryValue Id="RegVal.eiffel_protocol.default" Value="URL:Eiffel Protocol" Type="string"/>
+					<RegistryValue Id="RegVal.eiffel_protocol.url" Name="URL Protocol" Value="" Type="string"/>
+					<RegistryKey Id="Reg.eiffel_protocol.defaulticon" Key="DefaultIcon" Action="createAndRemoveOnUninstall">
+						<RegistryValue Id="RegVal.eiffel_protocol.defaulticon.default" Value="[INSTALLDIR]\studio\spec\$(var.IsePlatform)\bin\estudio.exe" Type="string"/>
+					</RegistryKey>
+					<RegistryKey Id="Reg.eiffel_protocol.shell" Key="shell\open\command" Action="createAndRemoveOnUninstall">
+						<RegistryValue Id="RegVal.eiffel_protocol.shell.default" Value="&quot;[INSTALLDIR]\studio\spec\$(var.IsePlatform)\bin\estudio.exe&quot; /ec_action eisi:&quot;%1&quot;" Type="string"/>
+					</RegistryKey>
+				</RegistryKey>
+			</Component>
+			<Directory Id="Dir.gcc" Name="gcc"/>
+			<Directory Id="Dir.Core.examples" Name="examples"/>
+			<Directory Id="Dir.Core.library" Name="library">
+				<Directory Id="Dir.Core.library.gobo" Name="gobo"/>
+			</Directory>
+			<Directory Id="Dir.Core.experimental" Name="experimental">
+				<Directory Id="Dir.Core.experimental.library" Name="library">
+					<Directory Id="Dir.Core.experimental.library.gobo" Name="gobo"/>
+				</Directory>
+			</Directory>
+			<!-- To comment when building complete delivery -->
+			<!--
+			<Directory Id="Dir.Core.esbuilder.spec.$(var.IsePlatform).bin" Name="testing1"/>
+			<Directory Id="Dir.Core.studio.spec.$(var.IsePlatform).bin" Name="testing2"/>
+			-->
+		</DirectoryRef>
+
+		<DirectoryRef Id="TARGETDIR">
+			<Directory Id="DesktopFolder" Name="." />
+			<Directory Id="ProgramMenuFolder" Name=".">
+				<Directory Id="EiffelStudio" Name="$(var.Product) $(var.ProductVersion) ($(var.Platform))">
+					<Directory Id="EiffelStudio.Documentation" Name="Documentation"/>
+					<Directory Id="EiffelStudio.Tools" Name="Tools"/>
+				</Directory>
+			</Directory>
+		</DirectoryRef>
+
+		<!-- PROGIDS -->
+		<DirectoryRef Id="Dir.Core.esbuilder.spec.$(var.IsePlatform).bin" >
+			<Component Id="Comp.Core.esbuilder.spec.$(var.IsePlatform).bin.esbuilder.exe" Guid="BA8812BD-C38D-44AA-9FE9-A85DBB4CF493" Win64="$(var.IsWin64)">
+				<File Id="Core.esbuilder.spec.$(var.IsePlatform).bin.esbuilder.exe" Name="esbuilder.exe" DiskId="1" Source="$(env.INSTALL_DIR)\EiffelStudio\esbuilder\spec\$(var.IsePlatform)\bin\esbuilder.exe"/>
+				<ProgId Id="build.project" Description="EiffelBuild project" Icon="Core.esbuilder.spec.$(var.IsePlatform).bin.esbuilder.exe" IconIndex="0" >
+					<Extension Id="bpr">
+						<MIME ContentType="text/xml" />
+						<Verb Id="bpr" Argument="&quot;%1&quot;" Command="Open" TargetFile="Core.esbuilder.spec.$(var.IsePlatform).bin.esbuilder.exe" />
+					</Extension>
+				</ProgId>
+			</Component>
+		</DirectoryRef>
+		<DirectoryRef Id="Dir.Core.studio.spec.$(var.IsePlatform).bin" >
+			<Component Id="Comp.Core.studio.spec.$(var.IsePlatform).bin.estudio.exe" Guid="4AECBDF8-9061-4260-A4C1-A54F0E163A3F" Win64="$(var.IsWin64)">
+				<File Id="Core.studio.spec.$(var.IsePlatform).bin.estudio.exe" Name="estudio.exe" DiskId="1" Source="$(env.INSTALL_DIR)\EiffelStudio\studio\spec\$(var.IsePlatform)\bin\estudio.exe"/>
+				<ProgId Id="estudio_ecf.project" Description="EiffelStudio project" Icon="Core.studio.spec.$(var.IsePlatform).bin.estudio.exe" IconIndex="1" >
+					<Extension Id="ecf">
+						<MIME ContentType="text/xml" />
+						<Verb Id="open" Argument="&quot;%1&quot;" Command="Open" TargetFile="Core.studio.spec.$(var.IsePlatform).bin.estudio.exe" />
+						<Verb Id="compile" Argument="-config &quot;%1&quot; -melt" Command="Compile" TargetFile="Core.studio.spec.$(var.IsePlatform).bin.estudio.exe" />
+						<Verb Id="precompile" Argument="-config &quot;%1&quot; -precompile" Command="Precompile" TargetFile="Core.studio.spec.$(var.IsePlatform).bin.estudio.exe" />
+						<Verb Id="freeze" Argument="-config &quot;%1&quot; -freeze" Command="Freeze" TargetFile="Core.studio.spec.$(var.IsePlatform).bin.estudio.exe" />
+						<Verb Id="finalize" Argument="-config &quot;%1&quot; -finalize" Command="Finalize" TargetFile="Core.studio.spec.$(var.IsePlatform).bin.estudio.exe" />
+					</Extension>
+				</ProgId>
+				<ProgId Id="estudio_e.class" Description="Eiffel Classes" Icon="Core.studio.spec.$(var.IsePlatform).bin.estudio.exe" IconIndex="2" >
+					<Extension Id="e" >
+						<MIME ContentType="text/plain" />
+					</Extension>
+				</ProgId>
+			</Component>
+		</DirectoryRef>
+		<!-- END PROGIDS -->
+
+		<!-- Shortcuts and file association -->
+		<DirectoryRef Id="EiffelStudio">
+			<Component Id="Comp.studio_shortcuts" Guid="$(var.ShortcutsGuid)" Win64="$(var.IsWin64)">
+				<CreateFolder Directory="EiffelStudio"/>
+				<CreateFolder Directory="EiffelStudio.Documentation"/>
+				<CreateFolder Directory="EiffelStudio.Tools"/>
+				<RemoveFolder Id="RemoveEiffelStudio" Directory="EiffelStudio" On="uninstall" />
+				<RemoveFolder Id="RemoveEiffelStudio.Documentation" Directory="EiffelStudio.Documentation" On="uninstall" />
+				<RemoveFolder Id="RemoveEiffelStudio.Tools" Directory="EiffelStudio.Tools" On="uninstall" />
+				<RegistryValue Id="Id.shortcuts" Root="HKCU" Key="Software\ISE\$(var.ProductKey)" Name="InstalledShortcuts" Type="integer" Value="1" KeyPath="yes"/>
+				<Shortcut Id="esbuilder.exe" Name="EiffelBuild"
+					Description="GUI Builder using EiffelVision2" Show="normal" Directory="EiffelStudio"
+					Target="[INSTALLDIR]esbuilder\spec\$(var.IsePlatform)\bin\esbuilder.exe"
+					/>
+				<Shortcut Id="estudio.exe" Name="$(var.Product) $(var.ProductVersion)"
+					Description="EiffelStudio development environment" Show="normal" Directory="EiffelStudio"
+					Target="[INSTALLDIR]studio\spec\$(var.IsePlatform)\bin\estudio.exe"
+					/>
+				<Shortcut Id="estudio.exe1" Name="$(var.Product) $(var.ProductVersion) (Experimental mode)"
+					Description="EiffelStudio development environment using compatibility facilities of EiffelStudio" Show="normal"
+					Target="[INSTALLDIR]studio\spec\$(var.IsePlatform)\bin\estudio.exe" Directory="EiffelStudio"
+					Arguments="-experiment"
+					/>
+				<Shortcut Id="esvars.bat" Name="$(var.Product) $(var.ProductVersion) Command Prompt"
+					Description="EiffelStudio Command Prompt" Show="normal" Directory="EiffelStudio"
+					Target="[%ComSpec]"
+					Arguments="/k &quot;[INSTALLDIR]studio\config\$(var.IsePlatform)\esvars.bat&quot;"
+					/>
+				<Shortcut Id="UninstallProduct" Name="Uninstall $(var.Product)"
+					Description="Uninstalls $(var.Product)" Show="normal" Directory="EiffelStudio"
+					Target="[System64Folder]msiexec.exe"
+					Arguments="/x [ProductCode]"
+					/>
+				<util:InternetShortcut Id="EiffelStudio.Documentation.General" Name="Eiffel Developer Help Center" Target="http://docs.eiffel.com/" Directory="EiffelStudio.Documentation"/>
+				<util:InternetShortcut Id="EiffelStudio.Documentation.COM" Name="EiffelCOM Wizard Documentation" Target="http://docs.eiffel.com/book/platform-specifics/eiffelcom-wizard" Directory="EiffelStudio.Documentation"/>
+				<util:InternetShortcut Id="EiffelStudio.Documentation.ResourceBench" Name="ResourceBench Documentation" Target="http://docs.eiffel.com/book/platform-specifics/resourcebench" Directory="EiffelStudio.Documentation"/>
+				<Shortcut Id="vision2_demo.exe" Name="EiffelVision2 Demo"
+					Description="EiffelVision2 overview presentation" Show="normal" Directory="EiffelStudio.Documentation"
+					Target="[INSTALLDIR]vision2_demo\spec\$(var.IsePlatform)\bin\vision2_demo.exe"
+					/>
+				<Shortcut Id="com_wizard.exe" Name="EiffelCOM Wizard" 
+					Description="A wizard that helps you use and create COM components with Eiffel" Show="normal"
+					Target="[INSTALLDIR]wizards\com\com_wizard_launcher.exe" Directory="EiffelStudio.Tools"
+					/>
+				<Shortcut Id="he2.exe" Name="C constants to Eiffel class generator"
+					Description="A tool to extract constant definitions into Eiffel classes" Show="normal"
+					Target="[INSTALLDIR]studio\spec\$(var.IsePlatform)\bin\h2e.exe" Directory="EiffelStudio.Tools"
+					/>
+				<Shortcut Id="rb.exe" Name="ResourceBench"
+					Description="A tool to convert .rc files into WEL classes" Show="normal"
+					Target="[INSTALLDIR]rb\bin\rb.exe" Directory="EiffelStudio.Tools"
+					/>
+			</Component>
+		</DirectoryRef>
+		<!-- END PACKAGE CONTENT -->
+
+		<!-- FEATURES -->
+		<Feature Id="Feat.root" Title="$(var.ProductName)" Description="$(var.ProductDescription)" TypicalDefault="install" Display="expand" Level="1" ConfigurableDirectory="INSTALLDIR">
+			<Feature Id="MainProgram" Title="Program" TypicalDefault="install" Level="1" Display="hidden">
+				<ComponentRef Id="Comp.studio_registries" />
+				<ComponentRef Id="Comp.studio_shortcuts" />
+				<ComponentRef Id="Comp.Core.esbuilder.spec.$(var.IsePlatform).bin.esbuilder.exe" />
+				<ComponentRef Id="Comp.Core.studio.spec.$(var.IsePlatform).bin.estudio.exe" />
+				<ComponentGroupRef Id="Core"/>
+				<?ifdef Enterprise ?>
+					<ComponentGroupRef Id="enterprise_ec"/>
+				<?else?>
+					<ComponentGroupRef Id="gpl_ec"/>
+				<?endif?>
+			</Feature>
+
+			<Feature Id="Examples_feature" Title="Examples" TypicalDefault="install" Level="1" Display="hidden">
+				<ComponentGroupRef Id="Core.examples"/>
+			</Feature>
+
+			<Feature Id="Library_feature" Title="Library" TypicalDefault="install" Level="1" Display="hidden">
+				<ComponentGroupRef Id="Core.library"/>
+			</Feature>
+
+			<Feature Id="Gobo_feature" Title="Gobo" TypicalDefault="install" Level="1" Display="hidden">
+				<ComponentGroupRef Id="Core.library.gobo"/>
+			</Feature>
+
+			<Feature Id="Experimental_feature" Title="Experimental" TypicalDefault="install" Level="1" Display="hidden">
+				<ComponentGroupRef Id="Core.experimental.library"/>
+			</Feature>
+
+			<Feature Id="Gobo_experimental_feature" Title="Gobo Experimental" TypicalDefault="install" Level="1" Display="hidden">
+				<ComponentGroupRef Id="Core.experimental.library.gobo"/>
+			</Feature>
+
+			<Feature Id="gdiplus_feature" Title="GDI+" TypicalDefault="install" Level="1" Display="hidden">
+				<Condition Level="0"><![CDATA[GDIPLUSNEEDED = "0"]]></Condition>
+				<ComponentGroupRef Id="gdiplus"/>
+			</Feature>
+
+			<Feature Id="gcc_feature" Title="gcc" TypicalDefault="install" Display="hidden" Level="1" >
+				<ComponentGroupRef Id="gcc"/>
+			</Feature>
+		</Feature>
+		<!-- END FEATURES -->
+
+		<!-- CUSTOM ACTIONS -->
+		<CustomAction Id="RESET_CHECKCCOMPILER" Property="CHECKCCOMPILER" Value="0" />
+		<CustomAction Id="RESET_HASMSCCOMPILER" Property="HASMSCCOMPILER" Value="0" />
+		<!-- END CUSTOM ACTIONS -->
+
+		<!-- UI SEQUENCING -->
+		<AdminUISequence>
+			<Custom Action="RESET_CHECKCCOMPILER" After="CostInitialize"><![CDATA[SHOWCCONFIG >= "1"]]></Custom> <!-- See Admin.txt -->
+			<Custom Action="RESET_HASMSCCOMPILER" After="CostInitialize"><![CDATA[SHOWCCONFIG >= "1"]]></Custom> <!-- See Admin.txt -->			
+		</AdminUISequence>
+		<InstallUISequence>
+			<Custom Action="RESET_CHECKCCOMPILER" After="AppSearch"><![CDATA[SHOWCCONFIG >= "1"]]></Custom> <!-- See Admin.txt -->
+			<Custom Action="RESET_HASMSCCOMPILER" After="AppSearch"><![CDATA[SHOWCCONFIG >= "1"]]></Custom> <!-- See Admin.txt -->
+		</InstallUISequence>
+		<!-- END UI SEQUENCING -->
+
+	</Fragment>
+
+	<?endif?>
+</Wix>

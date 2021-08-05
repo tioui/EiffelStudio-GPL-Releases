@@ -1,0 +1,88 @@
+#!/bin/sh
+# EiffelStudio Community releases
+# Copyright (C) 2021 Eiffel Software and Louis M
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+
+
+remtrace Checkout up to date version of XML documentation files
+cd $DOCUMENT_DIR
+cp -rp $EIFFEL_SOURCE/Documentation/xmldoc xmldoc
+
+remtrace Checkout and compile the Documentation tool
+cd $EIFFEL_SRC
+safe_md tools
+cd $EIFFEL_SRC/tools
+cp -rp $EIFFEL_SOURCE/Src/tools/doc_builder doc_builder
+cd $EIFFEL_SRC/tools/doc_builder
+ecb -batch -finalize -config doc_builder.ecf -c_compile >> $INSTALL_LOG 2>&1
+if [ ! -f EIFGENs/doc_builder/F_code/doc_builder ]; then
+	remtrace Couldnt generate doc_builder
+	CANCEL
+else
+	mv EIFGENs/doc_builder/F_code/doc_builder .
+fi
+rm -rf EIFGENs
+
+remtrace Compile all required libraries and generate XML documentation
+cd $EIFFEL_SRC/tools/doc_builder/resources/xml
+ecb -config all_libs.ecf >> $INSTALL_LOG 2>&1
+ecb -flatshort -filter xml -all -config all_libs.ecf >> $INSTALL_LOG 2>&1
+
+remtrace Copy XML docs into appropriate written docs location
+cd $EIFFEL_SRC/tools/doc_builder/resources/xml/Documentation
+rm -rf *.html
+rm -rf *_links.xml
+rm -rf *_short.xml
+cd vision2
+rm -rf *_imp_*.xml
+sed -e "s/^.*_imp_.*$//g" index.xml >> new_index.xml
+cp new_index.xml index.xml
+
+cd $EIFFEL_SRC/tools/doc_builder/resources/xml/Documentation
+
+mv base $DOCUMENT_DIR/xmldoc/libraries/base/reference
+mv wel $DOCUMENT_DIR/xmldoc/libraries/wel/reference
+mv vision2 $DOCUMENT_DIR/xmldoc/libraries/vision2/reference
+mv com $DOCUMENT_DIR/xmldoc/libraries/com/reference
+mv eiffel2java $DOCUMENT_DIR/xmldoc/libraries/eiffel2java/reference
+mv lex $DOCUMENT_DIR/xmldoc/libraries/lex/reference
+mv parse $DOCUMENT_DIR/xmldoc/libraries/parse/reference
+mv net $DOCUMENT_DIR/xmldoc/libraries/net/reference
+mv thread $DOCUMENT_DIR/xmldoc/libraries/thread/reference
+mv time $DOCUMENT_DIR/xmldoc/libraries/time/reference
+mv web $DOCUMENT_DIR/xmldoc/libraries/web/reference
+mv store $DOCUMENT_DIR/xmldoc/libraries/store/reference
+mv preferences $DOCUMENT_DIR/xmldoc/libraries/preferences/reference
+
+remtrace Deleting EIFGENs
+rm -rf $EIFFEL_SRC/tools/doc_builder/resources/xml/EIFGENs
+
+remtrace Run the documentation tool to generate the documentation for EiffelStudio as web based help
+cd $EIFFEL_SRC/tools/doc_builder
+
+export DOCUMENT_DIR
+export EIFFEL_SRC
+
+./doc_builder -gen /xml2help -o /studio -t /web_simple -nohtml $DOCUMENT_DIR/xmldoc/projects/documentation.dpr
+
+mv output_log.txt $DOCUMENT_DIR/output_log.txt
+
+move /tmp/doc_builder/Help $INSTALL_DIR/docs
+rm -rf $INSTALL_DIR/docs/docs_settings.xml
+
+fullrd $EIFFEL_SRC/xmldoc
+
+cd $EIFFEL_SRC

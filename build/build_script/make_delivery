@@ -1,0 +1,385 @@
+#!/bin/sh
+# EiffelStudio Community releases
+# Copyright (C) 2021 Eiffel Software and Louis M
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+
+
+# Set up the environment
+OLD_PATH=$PATH
+INIT_DIR=`pwd`
+TMP_EIFFEL_SRC=""
+TMP_ISE_SRC=""
+TMP_ISE_LIBRARY=""
+
+. ./set_aliases
+echo > $INSTALL_LOG
+
+echo $* > tmpin$$.tmp
+awk 'index($0, "h") != 0 { exit 54 }' tmpin$$.tmp
+if [ $? -eq 54 ] ;  then
+echo Installation for ISE Eiffel 5 generation.
+echo "Parameters are all (to generate all deliveries), no_compile, no_wizards, no_new_ec and no_install (or nothing to fully regenerate the enterprise installation)."
+fullrf tmpin$$.tmp
+CANCEL
+fi
+awk 'index($0, "no_comp") != 0 { exit 54 }' tmpin$$.tmp
+if [ $? -eq 54 ] ;  then
+NO_COMPILE="True"
+else
+NO_COMPILE=""
+fi
+awk 'index($0, "no_ins") != 0 { exit 54 }' tmpin$$.tmp
+if [ $? -eq 54 ] ;  then
+NO_INSTALL="True"
+else
+NO_INSTALL=""
+fi
+awk 'index($0, "no_wiz") != 0 { exit 54 }' tmpin$$.tmp
+if [ $? -eq 54 ] ;  then
+NO_WIZARDS="True"
+else
+NO_WIZARDS=""
+fi
+awk 'index($0, "doc") != 0 { exit 54 }' tmpin$$.tmp
+if [ $? -eq 54 ] ;  then
+NO_DOCUMENTATION=""
+else
+NO_DOCUMENTATION="True"
+fi
+awk 'index($0, "no_new_ec") != 0 { exit 54 }' tmpin$$.tmp
+if [ $? -eq 54 ] ;  then
+NO_NEW_EC="True"
+else
+NO_NEW_EC=""
+fi
+awk 'index($0, "all") != 0 { exit 54 }' tmpin$$.tmp
+if [ $? -eq 54 ] ;  then
+MULTIPLE_EDITIONS="True"
+else
+MULTIPLE_EDITIONS=""
+fi
+rm -f tmpin$$.tmp
+
+cd $INIT_DIR
+remtrace Approximative starting time:
+remtrace `date +%c`
+
+. ./check_environment
+cd $INIT_DIR
+if [ -d $EXPORT_DIR ]; then
+	fullrd $EXPORT_DIR
+fi
+safe_md $EXPORT_DIR
+
+remtrace Retrieve and organize the delivery
+remtrace Remove $INSTALL_DIR
+if [ -d $INSTALL_DIR ]; then fullrd $INSTALL_DIR >> $INSTALL_LOG; fi
+if [ -d $INSTALL_DIR ]; then fullrf $INSTALL_DIR >> $INSTALL_LOG; fi
+if [ -d $INSTALL_DIR ]; then
+	echo "Cannot delete $INSTALL_DIR!"
+	CANCEL
+fi
+md $INSTALL_DIR
+cd $INSTALL_DIR
+remtrace studio
+cp -rp $EIFFEL_SOURCE/Src/Delivery/studio studio
+fullrd studio/bitmaps/src
+fullrd studio/bitmaps/png/icons_16x16.png
+fullrd studio/bitmaps/png/small_12x12.png
+fullrd studio/bitmaps/png/icons_10x10.png
+fullrd studio/spec/windows
+fullrd studio/spec/win64
+fullrd studio/config/windows
+fullrd studio/lang/po_files
+fullrd studio/lang/script
+fullrd studio/wizards/new_projects/wizard
+fullrf studio/wizards/new_projects/wizard.dsc
+fullrd studio/wizards/new_projects/dotnet
+fullrf studio/wizards/new_projects/dotnet.dsc
+fullrd studio/wizards/new_projects/wel
+fullrf studio/wizards/new_projects/wel.dsc
+remtrace studio ewf wizard
+cp -rp $EIFFEL_SOURCE/Src/help/wizards/ewf/rootdir studio/wizards/new_projects/ewf
+move studio/wizards/new_projects/ewf/ewf.dsc studio/wizards/new_projects/ewf.dsc
+remtrace studio library wizard
+cp -rp $EIFFEL_SOURCE/Src/help/wizards/library/rootdir studio/wizards/new_projects/library
+move studio/wizards/new_projects/library/library.dsc studio/wizards/new_projects/library.dsc
+
+remtrace eweasel
+cp -rp $EIFFEL_SOURCE/eweasel eweasel
+fullrf $INSTALL_DIR/eweasel/INSTALL
+
+remtrace esbuilder
+cp -rp $EIFFEL_SOURCE/Src/Delivery/esbuilder esbuilder
+remtrace vision2_demo
+cp -rp $EIFFEL_SOURCE/Src/Delivery/vision2_demo vision2_demo
+remtrace examples
+cp -rp $EIFFEL_SOURCE/Src/examples examples
+cd examples
+fullrd obsolete
+fullrd eiffeltest
+fullrd iphone
+fullrd libevent
+fullrd math
+fullrd matisse
+fullrd store/matisse
+fullrd old_com
+fullrd old_matisse
+fullrd vision
+fullrd build
+fullrd dotnet
+fullrd ribbon
+fullrd thread/fancy
+fullrd vision2/Boxes
+fullrd vision2/drawing_area
+fullrd vision2/ev_list
+fullrd vision2/fake_event
+fullrd vision2/figure
+fullrd vision2/hello_world
+fullrd vision2/menu
+fullrd vision2/multicolumn_list
+fullrd vision2/pixmap
+fullrd vision2/split_area
+fullrd vision2/test_all_widgets
+fullrd vision2/test_events
+fullrd vision2/tests
+fullrd vision2/tutorial
+fullrd vision2/widget_test
+
+remtrace precomp
+safe_md $INSTALL_DIR/experimental/precomp
+safe_md $INSTALL_DIR/experimental/precomp/spec
+cd $INSTALL_DIR/experimental/precomp/spec
+cp -rp $EIFFEL_SOURCE/Src/Delivery/precomp/spec/platform platform
+cd platform
+fullrf *-safe.ecf
+
+safe_md $INSTALL_DIR/precomp
+safe_md $INSTALL_DIR/precomp/spec
+cd $INSTALL_DIR/precomp/spec
+cp -rp $EIFFEL_SOURCE/Src/Delivery/precomp/spec/platform platform
+
+remtrace C_library
+safe_md $INSTALL_DIR/C_library
+cd $INSTALL_DIR/C_library
+cp -rp $EIFFEL_SOURCE/Src/C_library/curl curl
+cp -rp $EIFFEL_SOURCE/Src/C_library/libpng libpng
+cp -rp $EIFFEL_SOURCE/Src/C_library/zlib zlib
+safe_md openssl 
+cp -rp $EIFFEL_SOURCE/Src/C_library/openssl/clibs_openssl.ecf openssl
+cd $INSTALL_DIR
+remtrace root
+cp -rp $EIFFEL_SOURCE/Src/Delivery Delivery
+move Delivery/* . >> $INSTALL_LOG
+fullrd Delivery >> $INSTALL_LOG
+
+remtrace Borland files
+fullrf BCC55.tar.gz
+fullrf *.bat
+fullrf *.exe
+if [ ! -d $NEW_EIFFEL_SRC ]; then
+	md $NEW_EIFFEL_SRC
+fi
+
+#Save environment variables
+TMP_EIFFEL_SRC=$EIFFEL_SRC
+TMP_ISE_SRC=$ISE_SRC
+TMP_ISE_LIBRARY=$ISE_LIBRARY
+EIFFEL_SRC=$NEW_EIFFEL_SRC
+ISE_SRC=$NEW_ISE_SRC
+ISE_LIBRARY=$NEW_ISE_LIBRARY
+
+export ISE_LIBRARY
+export ISE_SRC
+export EIFFEL_SRC
+
+cd $INIT_DIR
+
+# Fill directories
+if [ ! "$NO_COMPILE" ]; then
+	remtrace Update all source files.
+	cd $INIT_DIR
+	if [ -d $EIFFEL_SRC ]; then
+		fullrd $EIFFEL_SRC
+	fi
+	cp -rp $EIFFEL_SOURCE/Src $EIFFEL_SRC
+
+	if [ -n "$UNIX_BASE_PATH" ]; then
+		remtrace Adjusting unix base path
+		# updating EIFFEL_ENV
+		rm -f tmp
+		sed -e "/UNIX_BASE_PATH/s|/usr/local|$UNIX_BASE_PATH|g" $EIFFEL_SRC/framework/environment/interface/eiffel_env.e  > tmp
+		rm -f $EIFFEL_SRC/framework/environment/interface/eiffel_env.e
+		mv -f tmp $EIFFEL_SRC/framework/environment/interface/eiffel_env.e
+
+		# update finish_freezing
+		rm -f tmp
+		sed -e "/UNIX_BASE_PATH/s|/usr/local|$UNIX_BASE_PATH|g" $INSTALL_DIR/studio/spec/unix/finish_freezing > tmp
+		rm -f $INSTALL_DIR/studio/spec/unix/finish_freezing
+		mv -f tmp $INSTALL_DIR/studio/spec/unix/finish_freezing
+
+		chmod +x $INSTALL_DIR/studio/spec/unix/finish_freezing
+	fi
+
+	if [ -n "$UNIX_LIB_NAME" ]; then
+		remtrace Adjusting unix lib name
+		# updating EIFFEL_ENV
+		rm -f tmp
+		sed -e "/UNIX_LIB_NAME/s/lib/$UNIX_LIB_NAME/g" $EIFFEL_SRC/framework/environment/interface/eiffel_env.e  > tmp
+		rm -f $EIFFEL_SRC/framework/environment/interface/eiffel_env.e
+		mv -f tmp $EIFFEL_SRC/framework/environment/interface/eiffel_env.e
+
+		# update finish_freezing
+		rm -f tmp
+		sed -e "/UNIX_LIB_NAME/s/lib/$UNIX_LIB_NAME/g" $INSTALL_DIR/studio/spec/unix/finish_freezing > tmp
+		rm -f $INSTALL_DIR/studio/spec/unix/finish_freezing
+		mv -f tmp $INSTALL_DIR/studio/spec/unix/finish_freezing
+
+		chmod +x $INSTALL_DIR/studio/spec/unix/finish_freezing 
+	fi
+
+	if [ "$MULTIPLE_EDITIONS" ]; then
+		remtrace ISE specific files: enterprise edition
+		cd $EIFFEL_SRC
+		cp -rp $EIFFEL_SOURCE/Src/library/keygen library/keygen
+		cd tools
+		cp -rp $EIFFEL_SOURCE/Src/tools/activation activation
+		cp -rp $EIFFEL_SOURCE/Src/tools/estudio_enterprise estudio_enterprise
+	fi
+
+	remtrace Install iron files
+	safe_md $INSTALL_DIR/tools
+	cd $INSTALL_DIR/tools
+	cp -rp $EIFFEL_SOURCE/Src/tools/iron/delivery/iron iron
+
+	remtrace Generate needed executables of the bin directory
+	cd $INIT_DIR
+	. ./make_exes
+	cd $INIT_DIR
+
+	if [ ! "$NO_WIZARDS" ]; then
+		remtrace Generate the precompilation and the \"new project\" wizards
+		. ./make_wizards
+		cd $INIT_DIR
+	else
+		quick_move -r studio/wizards
+	fi
+
+else
+	remtrace Copy executable files from the old delivery
+	quick_move -r studio/spec
+	quick_move -r studio/wizards
+fi
+
+if [ ! "$NO_DOCUMENTATION" ]; then
+	remtrace Check out the documentation
+	# When compiling for GTK 1.2, disable the building of the documentation
+	# since on most machine GTK 1.2 is not installed.
+	cd $INIT_DIR
+	. ./make_xml_documentation
+fi
+
+
+remtrace "Putting the Eiffel libraries in the delivery"
+cd $INIT_DIR
+set -- $INSTALL_DIR library $GTK_DIR
+. ./make_libraries
+cd $INIT_DIR
+safe_md $INSTALL_DIR/experimental
+set -- $INSTALL_DIR/experimental experimental/library $GTK_DIR
+. ./make_libraries
+
+remtrace "Putting unsupported libraries in the delivery (ISE or others)"
+cd $INIT_DIR
+set -- $INSTALL_DIR
+. ./make_other_libraries
+
+cd $INIT_DIR
+
+if [ ! "$NO_INSTALL" ]; then
+	remtrace Compress everything
+	if [ ! "$NO_COMPILE" ]; then
+		remtrace C directory
+		cd $EIFFEL_SRC
+		pax -w -f c.tar C
+		bzip2 c.tar
+		move c.tar.bz2 $EXPORT_DIR
+
+		remtrace C_library
+			# Removing parts that we do not need to put in the porterpackage
+		fullrd	C_library/openssl
+		pax -w -f c_libs.tar C_library
+		bzip2 c_libs.tar
+		move c_libs.tar.bz2 $EXPORT_DIR
+
+		remtrace Eiffel libraries
+		pax -w -f libs.tar library
+		bzip2 libs.tar
+		move libs.tar.bz2 $EXPORT_DIR
+	fi
+	remtrace The delivery itself
+	cd $INSTALL_DIR
+	pax -w -f delivery.tar *
+	bzip2 delivery.tar
+	move delivery.tar.bz2 $EXPORT_DIR
+	
+	cd $INIT_DIR
+	copy compile* $EXPORT_DIR
+	copy make_images $EXPORT_DIR
+	copy make_cd_image $EXPORT_DIR
+	copy set_aliases $EXPORT_DIR
+ 
+	# Scripts for building unix layout/packages
+	copy make_unix_layout $EXPORT_DIR
+	copy make_debian_package $EXPORT_DIR
+	copy make_rpm_package $EXPORT_DIR
+	# We checkout to avoid having to include the subversion specific directories
+	cp -rp $EIFFEL_SOURCE/Src/Delivery/scripts/unix/packaging $EXPORT_DIR/packaging
+		# Now edit `set_aliases' in $EXPORT_DIR as we are now going for compilation mode.
+
+	# checkout eiffelstudio licenses
+	cp -rp $EIFFEL_SOURCE/Src/Delivery/scripts/licensing $EXPORT_DIR/licensing
+	cd $EXPORT_DIR
+	rm -f tmp
+	sed -e "s/\/PorterPackage//g" set_aliases > tmp
+	rm -f set_aliases
+	mv -f tmp set_aliases
+		# Update the revision number as well
+	FILE_SVN_REVISION=`$INIT_DIR/set_version.sh $EIFFEL_SRC`
+	sed -e "s/^FILE_SVN_REVISION.*$/FILE_SVN_REVISION=$FILE_SVN_REVISION/g" set_aliases > tmp
+	rm -f set_aliases
+	mv -f tmp set_aliases
+	cd $INIT_DIR
+fi
+# Restore environment variables to their original value
+EIFFEL_SRC=$TMP_EIFFEL_SRC
+ISE_SRC=$TMP_ISE_SRC
+ISE_LIBRARY=$TMP_ISE_LIBRARY
+TMP_EIFFEL_SRC=""
+TMP_ISE_SRC=""
+TMP_ISE_LIBRARY=""
+
+fullrd $NEW_EIFFEL_SRC
+fullrd $INSTALL_DIR
+fullrd $DOCUMENT_DIR/xmldoc
+
+# Finish
+remtrace final time:
+remtrace `date +%c`
+
+# Error handling and normal ending
+echo You should now run \'compile_exes\' in $EXPORT_DIR, after modifying set_aliases to update the EXPORT_DIR, if necessary.
+TERMINATE

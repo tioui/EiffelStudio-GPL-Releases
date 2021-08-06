@@ -6,15 +6,17 @@ Needed files
 
 Programs to install:
 
-- Visual Studio 2015 community edition (Installable via Visual Studio 2017 installer): https://my.visualstudio.com/Downloads?q=visual%20studio%202017
+- VC++ toolset 2015 (Installable via Visual Studio 2017 installer): https://my.visualstudio.com/Downloads?q=visual%20studio%202017
+- Windows 10 SDK (Installable via Visual Studio 2017 installer)
+- .NET framework 3.5 development tools (Installable via Visual Studio 2017 installer)
 - Visual Studio 2013 express edition: https://my.visualstudio.com/Downloads?q=visual%20studio%202013
-- MinGW ou MinGW 64 with the bin directory added to PATH: http://mingw-w64.org/doku.php/download (Prendre le MingW-W64-builds)
+- MinGW ou MinGW 64 avec le répertoire bin ajouté au PATH: http://mingw-w64.org/doku.php/download (Prendre le MingW-W64-builds)
 - JPsoft 4NT: https://jpsoft.com/
 - Mysql server (just for the header files): https://dev.mysql.com/downloads/installer/
 - Oracle Database Express Edition (see note) : https://www.oracle.com/database/technologies/xe-downloads.html
 - Win-Bash : https://sourceforge.net/projects/win-bash/files/shell-complete/latest/
 - EiffelStudio (the same version you are installing): https://sourceforge.net/projects/eiffelstudio/files/
-- 7zip with the installation directory added to PATH: https://www.7-zip.org/
+- 7zip avec le répertoire d'installation ajouté au PATH: https://www.7-zip.org/
 
 ----------------------------------------------------------------------------------------------------------
 Note: For Oracle Database Express Edition to compile using MinGW compiler, you need to change the file

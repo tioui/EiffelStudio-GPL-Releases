@@ -57,7 +57,7 @@ endiff
 
 
 remtrace ----------------------------------------------
-remtrace Building the MSIs
+remtrace Building the MSIs (Does not work, sadly)
 remtrace ----------------------------------------------
 cdd %INSTALL_DIR\install\content\eiffelstudio
 safe_md %INSTALL_DIR\setups
@@ -98,6 +98,9 @@ iff exist %INSTALL_DIR\releases\gpl_version\LICENSE then
 else
 	remtrace Missing GPL license text
 endiff
+copy %INIT_DIR%\EiffelStudio-*.bat %INSTALL_DIR\%STUDIO_NAME%\
+copy %INIT_DIR%\Set-Env-*.bat %INSTALL_DIR\%STUDIO_NAME%\
+copy %INIT_DIR%\Install-NET-Metadata-Consumer-Tool.bat %INSTALL_DIR\%STUDIO_NAME%\
 
 
 7z a -t7z %INSTALL_DIR\setups\gpl\%STUDIO_NAME%_gpl_%SVN_VERSION-%ISE_PLATFORM%.7z %STUDIO_NAME% -mx9 >>& %INSTALL_LOG

@@ -32,6 +32,10 @@ sudo docker container rm PorterPackage_Build
 sudo docker image rm porterpackage_build
 ```
 
+The "es.patch" file can be used to remove unwanted functionnality (Cloud and Update). It will not
+necessary work on any commit, so modification may be necessary. You have to use it before building the
+docker image (just after the "git checkout <commit>").
+
 The Output directory now contain the PorterPackage (and the release if you
 select "ENV ONLY_PORTERPACKAGE=true" in the dockerfile) is in the Output
 directory.

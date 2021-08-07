@@ -78,3 +78,7 @@ set WIN_BASH=C:\win-bash
 set PATH=%PATH%;C:\7-Zip;C:\mingw-w64\mingw32\bin
 call make_delivery.btm
 ```
+
+Note that you can une the "es.patch" file to remove unwanted functionnality
+(Cloud and Update). You have to use it on the %EIFFEL_SOURCE% directory
+before calling the "call make_delivery.btm".

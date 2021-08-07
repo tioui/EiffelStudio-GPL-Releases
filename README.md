@@ -1,4 +1,4 @@
-EiffelStudio Community Releases
+EiffelStudio GPL Releases
 ===============================
 
 This project is used to generate Releases of the GPL licensed EiffelStudio
@@ -39,7 +39,7 @@ directory.
 License
 -------
 
-    EiffelStudio Community releases
+    EiffelStudio GPL releases
     Copyright (C) 2021  Louis M
 
     This program is free software; you can redistribute it and/or modify

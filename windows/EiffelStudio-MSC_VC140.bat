@@ -1,3 +1,3 @@
 @echo off
-call Set-Env-MSC_VC140.bat
+call %~dp0\Set-Env-MSC_VC140.bat
 estudio

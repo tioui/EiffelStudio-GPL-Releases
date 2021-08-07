@@ -1,0 +1,376 @@
+#!/bin/sh
+
+INIT_DIR=`pwd`
+
+if [ $# -eq 0 ]; then 
+	echo Usage: compile_exes platform
+	exit 1
+fi
+
+ISE_PLATFORM=$1; export ISE_PLATFORM
+should_cancel=$2
+
+# Set up the environment
+. $INIT_DIR/set_aliases
+OLD_PATH=$PATH
+EIFFEL_SRC=$EXPORT_DIR; export EIFFEL_SRC
+ISE_LIBRARY=$EXPORT_DIR; export ISE_LIBRARY
+ISE_EIFFEL=$FINAL_INSTALL_DIR; export ISE_EIFFEL
+INSTALL_DIR=$FINAL_INSTALL_DIR
+
+echo > $COMPILE_LOG
+
+if [ -z "$ISE_PLATFORM" ]; then
+	remtrace Couldnt find environment variable ISE_PLATFORM
+	CANCEL
+fi
+
+# Check everything's fine
+if [ ! -d $EXPORT_DIR ]; then
+	remtrace Couldnt find the directory with the compressed files.
+	CANCEL
+fi
+if [ ! -d $EXPORT_DIR/bin ]; then
+	remtrace Couldnt find the bin directory with the compressed files.
+	CANCEL
+fi
+if [ -f bin/ec_ent.tar.bz2 ]; then
+	MULTIPLE_EDITIONS="True"
+else
+	MULTIPLE_EDITIONS=""
+fi
+remtrace Compile C code of the libraries
+remtrace \"A tout seigneur tout honneur\", let\'s start with the run-time
+if [ ! -f c.tar.bz2 ]; then
+	remtrace 'No.tar.bz2 for the C directory'
+	CANCEL
+fi
+fullrd C
+bunzip2 -c c.tar.bz2 | tar -xf -
+if [ ! -d C ]; then
+	remtrace No C directory
+	CANCEL
+fi
+
+remtrace Compile a commercial run-time
+cd $EXPORT_DIR
+fullrd C
+bunzip2 -c c.tar.bz2 | tar -xf -
+cd C
+. ./quick_configure >> $COMPILE_LOG 2>&1
+safe_md $EXPORT_DIR/runtimes
+cp run-time/*.so $EXPORT_DIR/runtimes
+cp run-time/*.a $EXPORT_DIR/runtimes
+if [ ! -f $EXPORT_DIR/runtimes/libwkbench.a ]; then
+	remtrace Couldnt generate the run-time
+	CANCEL
+else
+	if [ ! -f $EXPORT_DIR/runtimes/libwkbench.so ]; then
+		remtrace Couldnt generate the run-time
+		CANCEL
+	fi
+fi
+
+cd $EXPORT_DIR
+remtrace Extract the delivery
+if [ ! -f delivery.tar.bz2 ]; then
+	remtrace 'No.tar.bz2 of the delivery'
+	CANCEL
+else
+	remtrace Delivery
+	if [ -d $INSTALL_DIR ]; then
+		fullrd $INSTALL_DIR
+	fi
+	safe_md $INSTALL_DIR
+	if [ ! -d $INSTALL_DIR ]; then
+		remtrace Cannot create $INSTALL_DIR
+		CANCEL
+	fi
+	cd $INSTALL_DIR
+	bunzip2 -c $EXPORT_DIR/delivery.tar.bz2 | tar -xf -
+fi
+
+cd $EXPORT_DIR
+
+#These directories should have been created by make_delivery.
+safe_md $INSTALL_DIR/studio/spec/unix/include
+safe_md $INSTALL_DIR/studio/spec/unix/bin
+mv $INSTALL_DIR/studio/spec/unix/*re* $INSTALL_DIR/studio/spec/unix/bin
+safe_md $INSTALL_DIR/studio/spec/unix/lib
+
+safe_md $INSTALL_DIR/studio/config/$ISE_PLATFORM
+fullrd $INSTALL_DIR/studio/spec/$ISE_PLATFORM
+safe_md $INSTALL_DIR/studio/spec/$ISE_PLATFORM
+move $INSTALL_DIR/studio/config/unix/* $INSTALL_DIR/studio/config/$ISE_PLATFORM
+move $INSTALL_DIR/studio/spec/unix/* $INSTALL_DIR/studio/spec/$ISE_PLATFORM
+mv $INSTALL_DIR/precomp/spec/platform $INSTALL_DIR/precomp/spec/$ISE_PLATFORM
+mv $INSTALL_DIR/experimental/precomp/spec/platform $INSTALL_DIR/experimental/precomp/spec/$ISE_PLATFORM
+fullrd $INSTALL_DIR/studio/config/unix
+fullrd $INSTALL_DIR/studio/spec/unix
+
+#iron tool.
+move $INSTALL_DIR/tools/iron/spec/unix $INSTALL_DIR/tools/iron/spec/$ISE_PLATFORM
+chmod a+rx $INSTALL_DIR/tools/iron/spec/$ISE_PLATFORM/bin/iron_extract_archive
+chmod a+rx $INSTALL_DIR/tools/iron/spec/$ISE_PLATFORM/bin/iron_build_archive
+fullrd $INSTALL_DIR/tools/iron/spec/windows
+
+#Creates the tools directory
+safe_md $INSTALL_DIR/tools
+safe_md $INSTALL_DIR/tools/spec
+safe_md $INSTALL_DIR/tools/spec/$ISE_PLATFORM
+safe_md $INSTALL_DIR/tools/spec/$ISE_PLATFORM/bin
+
+
+cp C/run-time/lib*.a $INSTALL_DIR/studio/spec/$ISE_PLATFORM/lib 
+mac_ranlib $INSTALL_DIR/studio/spec/$ISE_PLATFORM/lib/libmtfinalized.a
+mac_ranlib $INSTALL_DIR/studio/spec/$ISE_PLATFORM/lib/libmtwkbench.a
+mac_ranlib $INSTALL_DIR/studio/spec/$ISE_PLATFORM/lib/libfinalized.a
+mac_ranlib $INSTALL_DIR/studio/spec/$ISE_PLATFORM/lib/libwkbench.a
+cp C/run-time/lib*.so $INSTALL_DIR/studio/spec/$ISE_PLATFORM/lib 
+fullrf $EXPORT_DIR/runtimes/libebench.a
+cp C/run-time/*.h $INSTALL_DIR/studio/spec/$ISE_PLATFORM/include
+cp C/run-time/eif_stack.decl $INSTALL_DIR/studio/spec/$ISE_PLATFORM/include
+cp C/run-time/eif_stack.interface $INSTALL_DIR/studio/spec/$ISE_PLATFORM/include
+cp C/config.sh $INSTALL_DIR/studio/spec/$ISE_PLATFORM/include
+	
+
+remtrace "Put x2c in the new delivery"
+# It should already have been compiled by the configure of the run-time.
+cd $EXPORT_DIR/C/run-time
+if [ ! -f x2c ]; then
+	echo Could not finalize a new x2c
+	CANCEL
+fi
+move x2c $INSTALL_DIR/studio/spec/$ISE_PLATFORM/bin
+
+remtrace Extract the Eiffel libraries
+cd $EXPORT_DIR
+if [ ! -f libs.tar.bz2 ]; then
+	remtrace 'No.tar.bz2 for the library directory'
+	CANCEL
+fi
+bunzip2 -c libs.tar.bz2 | tar -xf -
+if [ ! -d library ]; then
+	remtrace No library directory
+	CANCEL
+fi
+
+remtrace Recompile quick_finalize
+cd $EXPORT_DIR/bin
+untgz_ccode quick_finalize
+move quick_finalize $INSTALL_DIR/studio/spec/$ISE_PLATFORM/bin
+
+remtrace "Put ecdbgd in the new delivery"
+# It should already have been compiled by the configure of the run-time.
+cd $EXPORT_DIR/C/ipc/daemon
+if [ ! -f ecdbgd ]; then
+	echo Could not finalize a new ecdbgd
+	CANCEL
+fi
+move ecdbgd $INSTALL_DIR/studio/spec/$ISE_PLATFORM/bin
+
+cd $EXPORT_DIR
+remtrace Then extract the C libraries
+if [ ! -f c_libs.tar.bz2 ]; then
+	remtrace 'No.tar.bz2 for the C_library directory'
+	CANCEL
+fi
+bunzip2 -c c_libs.tar.bz2 | tar -xf -
+if [ ! -d C_library ]; then
+	remtrace No C_library directory
+	CANCEL
+fi
+
+# In the following calls we do not source the script because on some platforms you cannot
+# pass arguments to the sourced script, instead we execute it.
+cd $EXPORT_DIR
+./compile_c_library $ISE_PLATFORM $EXPORT_DIR 
+cd $EXPORT_DIR
+./compile_c_library $ISE_PLATFORM $INSTALL_DIR
+
+cd $EXPORT_DIR
+./compile_libraries $ISE_PLATFORM $EXPORT_DIR $GTK_DIR
+cd $EXPORT_DIR
+./compile_libraries $ISE_PLATFORM $INSTALL_DIR $GTK_DIR
+
+cd $EXPORT_DIR
+./compile_libraries $ISE_PLATFORM $INSTALL_DIR/experimental $GTK_DIR
+
+# Compile the other C libraries.
+cd $EXPORT_DIR
+./compile_other_libraries $ISE_PLATFORM $INSTALL_DIR
+
+remtrace eweasel
+move $INSTALL_DIR/eweasel/spec/unix $INSTALL_DIR/eweasel/spec/$ISE_PLATFORM
+cd $EXPORT_DIR/eweasel
+bunzip2 -c source.tar.bz2 | tar -xf -
+cd $EXPORT_DIR
+. ./compile_eweasel
+
+remtrace Esbuilder
+move $INSTALL_DIR/esbuilder/spec/unix $INSTALL_DIR/esbuilder/spec/$ISE_PLATFORM
+cd $EXPORT_DIR/esbuilder
+untgz_ccode esbuilder
+cp esbuilder $INSTALL_DIR/esbuilder/spec/$ISE_PLATFORM/bin/
+
+remtrace Vision2_demo
+cd $EXPORT_DIR/vision2_demo
+safe_md $INSTALL_DIR/vision2_demo/spec
+safe_md $INSTALL_DIR/vision2_demo/spec/$ISE_PLATFORM
+safe_md $INSTALL_DIR/vision2_demo/spec/$ISE_PLATFORM/bin
+untgz_ccode vision2_demo
+move vision2_demo $INSTALL_DIR/vision2_demo/spec/$ISE_PLATFORM/bin
+
+if [ "$MULTIPLE_EDITIONS" ]; then
+	remtrace Recompile CD key validator
+	cd $EXPORT_DIR/bin
+	if [ -f setup.tar.bz2 ]; then
+		untgz_ccode setup
+	fi
+fi
+
+remtrace Recompile EiffelStudio
+safe_md $EXPORT_DIR/ecs
+
+remtrace Standard edition
+cd $EXPORT_DIR/bin
+cp ec_gpl.tar.bz2 ec.tar.bz2
+untgz_ccode ec $should_cancel
+if [ -f ec ]; then
+	bzip2 ec
+	move ec.bz2 $EXPORT_DIR/ecs/ec_gpl.bz2
+fi
+
+remtrace Standard batch edition
+cp ecb_gpl.tar.bz2 ecb.tar.bz2
+untgz_ccode ecb
+bzip2 ecb
+move ecb.bz2 $EXPORT_DIR/ecs/ecb_gpl.bz2
+
+
+if [ -z "$MULTIPLE_EDITIONS" ]; then
+	bunzip2 -c $EXPORT_DIR/ecs/ec_gpl.bz2 > $INSTALL_DIR/studio/spec/$ISE_PLATFORM/bin/ec
+	bunzip2 -c $EXPORT_DIR/ecs/ecb_gpl.bz2 > $INSTALL_DIR/studio/spec/$ISE_PLATFORM/bin/ecb
+	chmod a+rx $INSTALL_DIR/studio/spec/$ISE_PLATFORM/bin/ec
+	chmod go-w $INSTALL_DIR/studio/spec/$ISE_PLATFORM/bin/ec 
+	chmod a+rx $INSTALL_DIR/studio/spec/$ISE_PLATFORM/bin/ecb
+	chmod go-w $INSTALL_DIR/studio/spec/$ISE_PLATFORM/bin/ecb
+else
+	remtrace Enterprise edition
+	cp ec_ent.tar.bz2 ec.tar.bz2
+	untgz_ccode ec $should_cancel
+	if [ -f ec ]; then
+		bzip2 ec
+		move ec.bz2 $EXPORT_DIR/ecs/ec_ent.bz2
+	fi
+
+	remtrace Enterprise batch edition
+	cp ecb_ent.tar.bz2 ecb.tar.bz2
+	untgz_ccode ecb
+	bzip2 ecb
+	move ecb.bz2 $EXPORT_DIR/ecs/ecb_ent.bz2
+fi
+
+remtrace Recompile estudio
+cd $EXPORT_DIR/bin
+untgz_ccode estudio
+move estudio $INSTALL_DIR/studio/spec/$ISE_PLATFORM/bin/estudio
+
+remtrace Recompile iron
+cd $EXPORT_DIR/bin
+untgz_ccode iron
+move iron $INSTALL_DIR/tools/spec/$ISE_PLATFORM/bin/iron
+
+remtrace Recompile syntax_updater
+cd $EXPORT_DIR/bin
+untgz_ccode syntax_updater
+move syntax_updater $INSTALL_DIR/tools/spec/$ISE_PLATFORM/bin/syntax_updater
+
+remtrace Recompile compile_all
+cd $EXPORT_DIR/bin
+untgz_ccode compile_all
+move compile_all $INSTALL_DIR/tools/spec/$ISE_PLATFORM/bin/compile_all
+
+remtrace Recompile eiffel script tool
+cd $EXPORT_DIR/bin
+untgz_ccode eiffel
+move eiffel $INSTALL_DIR/tools/spec/$ISE_PLATFORM/bin/eiffel
+
+remtrace Recompile wrap_c tool
+cd $EXPORT_DIR/bin
+untgz_ccode wrap_c
+move wrap_c $INSTALL_DIR/tools/spec/$ISE_PLATFORM/bin/wrap_c
+
+remtrace Recompile Eiffel Image Embedder
+cd $EXPORT_DIR/bin
+untgz_ccode eimgemb
+move eimgemb $INSTALL_DIR/tools/spec/$ISE_PLATFORM/bin/eimgemb
+
+remtrace Recompile Eiffel Echo
+cd $EXPORT_DIR/bin
+untgz_ccode eiffel_echo
+move eiffel_echo $INSTALL_DIR/tools/spec/$ISE_PLATFORM/bin/eiffel_echo
+
+remtrace Recompile ace2ecf
+cd $EXPORT_DIR/bin
+untgz_ccode ace2ecf
+move ace2ecf $INSTALL_DIR/tools/spec/$ISE_PLATFORM/bin/ace2ecf
+
+remtrace Compiling Gobo tools
+safe_md $INSTALL_DIR/library/gobo/spec/
+safe_md $INSTALL_DIR/library/gobo/spec/$ISE_PLATFORM
+safe_md $INSTALL_DIR/library/gobo/spec/$ISE_PLATFORM/bin
+
+remtrace geant
+cd $EXPORT_DIR/bin
+untgz_ccode geant
+move geant $INSTALL_DIR/library/gobo/spec/$ISE_PLATFORM/bin/geant
+
+remtrace gec
+cd $EXPORT_DIR/bin
+untgz_ccode gec
+move gec $INSTALL_DIR/library/gobo/spec/$ISE_PLATFORM/bin/gec
+
+remtrace gelex
+cd $EXPORT_DIR/bin
+untgz_ccode gelex
+move gelex $INSTALL_DIR/library/gobo/spec/$ISE_PLATFORM/bin/gelex
+
+remtrace gelint
+cd $EXPORT_DIR/bin
+untgz_ccode gelint
+move gelint $INSTALL_DIR/library/gobo/spec/$ISE_PLATFORM/bin/gelint
+
+remtrace gepp
+cd $EXPORT_DIR/bin
+untgz_ccode gepp
+move gepp $INSTALL_DIR/library/gobo/spec/$ISE_PLATFORM/bin/gepp
+
+remtrace getest
+cd $EXPORT_DIR/bin
+untgz_ccode getest
+move getest $INSTALL_DIR/library/gobo/spec/$ISE_PLATFORM/bin/getest
+
+remtrace gexslt
+cd $EXPORT_DIR/bin
+untgz_ccode gexslt
+move gexslt $INSTALL_DIR/library/gobo/spec/$ISE_PLATFORM/bin/gexslt
+
+remtrace geyacc
+cd $EXPORT_DIR/bin
+untgz_ccode geyacc
+move geyacc $INSTALL_DIR/library/gobo/spec/$ISE_PLATFORM/bin/geyacc
+
+cd $EXPORT_DIR
+. ./compile_wizards
+
+if [ ! -z "$MULTIPLE_EDITIONS" ]; then
+	fullrf $INSTALL_DIR/studio/spec/$ISE_PLATFORM/lib/*.a
+	fullrf $INSTALL_DIR/studio/spec/$ISE_PLATFORM/lib/*.so
+fi
+
+remtrace Make some space
+cd $EXPORT_DIR
+fullrd library
+
+TERMINATE

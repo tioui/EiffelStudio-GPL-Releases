@@ -15,15 +15,7 @@ call %INIT_DIR%\set_simple_aliases.btm
 
 set SVN_VERSION=%@EXECSTR[%WIN_BASH%\bash.exe set_version.sh %EIFFEL_SRC]
 
-echo xcopy %INIT_DIR\install %INSTALL_DIR\ /E /I /Y
-xcopy %INIT_DIR\install %INSTALL_DIR\ /E /I /Y < NUL
 
-echo xcopy %INIT_DIR\EiffelStudioPackage.wxs %INSTALL_DIR\install\content\eiffelstudio\ /E /I /Y
-xcopy %INIT_DIR\EiffelStudioPackage.wxs %INSTALL_DIR\install\content\eiffelstudio\ /E /I /Y < NUL
-echo xcopy %INIT_DIR\makefile %INSTALL_DIR\install\content\eiffelstudio\ /E /I /Y
-xcopy %INIT_DIR\makefile %INSTALL_DIR\install\content\eiffelstudio\ /E /I /Y < NUL
-cdd %INSTALL_DIR\install
-safe_md %INSTALL_DIR\install\bin
 iff .%ISE_PLATFORM%.==.win64. then
 	set IS_WIN64=yes
 	set WINNAME=x64
@@ -32,44 +24,6 @@ else
 	set WINNAME=x86
 endiff
 
-iff .%1.==.. then
-	remtrace ---------------------------------------------
-	remtrace Checkout and compile the hallow tool
-	remtrace ---------------------------------------------
-
-	cdd %EIFFEL_SRC\tools
-	echo xcopy %EIFFEL_SOURCE%\Src\tools\hallow hallow /E /I /Y 
-	xcopy %EIFFEL_SOURCE%\Src\tools\hallow hallow /E /I /Y > NUL
-	cd %EIFFEL_SRC\tools\hallow
-	clean_project
-	finalize hallow.ecf
-	cleanup_dotnet_eiffel hallow hallow.exe
-	iff not exist libhallow.dll then
-		remtrace Couldnt generate hallow.exe
-		CANCEL
-	else
-		move hallow.exe %INSTALL_DIR\install\bin
-		move libhallow.dll %INSTALL_DIR\install\bin
-		move eiffelsoftware.runtime.dll %INSTALL_DIR\install\bin
-	endiff
-
-endiff
-
-
-remtrace ----------------------------------------------
-remtrace Building the MSIs (Does not work, sadly)
-remtrace ----------------------------------------------
-cdd %INSTALL_DIR\install\content\eiffelstudio
-safe_md %INSTALL_DIR\setups
-safe_md %INSTALL_DIR\setups\gpl
-
-remtrace Creating WIX files
-nmake /nologo clean
-nmake /nologo
-
-remtrace Preparing GPL edition
-nmake /nologo gpl_%WINNAME
-copy %INSTALL_DIR\install\bin\studio_gpl_%WINNAME\package.msi %INSTALL_DIR\setups\gpl\%STUDIO_NAME%_gpl_%SVN_VERSION-%ISE_PLATFORM%.msi
 
 remtrace ----------------------------------------------
 remtrace Building the Zips
@@ -79,15 +33,6 @@ fullrd %INSTALL_DIR\EiffelStudio\eweasel\results
 fullrd %INSTALL_DIR\EiffelStudio\eweasel\source
 fullrd %INSTALL_DIR\EiffelStudio\eweasel\tests
 fullrd %INSTALL_DIR\EiffelStudio\experimental\C_library
-md %INSTALL_DIR\EiffelStudio\unstable\library\web\cms\themes\min\assets\js
-md %INSTALL_DIR\EiffelStudio\unstable\library\web\cms\modules\blog\site\scripts
-md %INSTALL_DIR\EiffelStudio\unstable\library\web\cms\modules\path
-md %INSTALL_DIR\EiffelStudio\unstable\library\web\cms\examples\demo\site\config\modules
-md %INSTALL_DIR\EiffelStudio\unstable\library\web\cms\examples\demo\site\scripts
-md %INSTALL_DIR\EiffelStudio\unstable\library\web\cms\examples\demo\site\modules\recent_changes
-md %INSTALL_DIR\EiffelStudio\unstable\library\web\cms\examples\demo\site\modules\blog\scripts
-md %INSTALL_DIR\EiffelStudio\unstable\library\web\cms\examples\demo\site\modules\seo
-md %INSTALL_DIR\EiffelStudio\unstable\library\web\cms\examples\demo\site\files\uploads
 cdd %INSTALL_DIR
 ren EiffelStudio %STUDIO_NAME%
 
@@ -98,11 +43,10 @@ iff exist %INSTALL_DIR\releases\gpl_version\LICENSE then
 else
 	remtrace Missing GPL license text
 endiff
-copy %INIT_DIR%\EiffelStudio-*.bat %INSTALL_DIR\%STUDIO_NAME%\
-copy %INIT_DIR%\Set-Env-*.bat %INSTALL_DIR\%STUDIO_NAME%\
-copy %INIT_DIR%\Install-NET-Metadata-Consumer-Tool.bat %INSTALL_DIR\%STUDIO_NAME%\
-copy %INIT_DIR%\EiffelBuild.bat %INSTALL_DIR\%STUDIO_NAME%\
-
+xcopy %INIT_DIR\batfiles-%WINNAME%\*.bat %INSTALL_DIR\%STUDIO_NAME%\ /E /I /Y
+copy %INIT_DIR\EiffelStudio-*.bat %INSTALL_DIR\%STUDIO_NAME%\
+copy %INIT_DIR\EiffelBuild.bat %INSTALL_DIR\%STUDIO_NAME%\
+copy %INIT_DIR\Install-NET-Metadata-Consumer-Tool.bat %INSTALL_DIR\%STUDIO_NAME%\
 
 7z a -t7z %INSTALL_DIR\setups\gpl\%STUDIO_NAME%_gpl_%SVN_VERSION-%ISE_PLATFORM%.7z %STUDIO_NAME% -mx9 >>& %INSTALL_LOG
 

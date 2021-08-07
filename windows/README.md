@@ -55,8 +55,7 @@ You have to set the environment variables:
 
 To execute:
 
-- Copy The %EIFFEL_SOURCE%\Src\Delivery\scripts\Windows directory some place (not in the %EIFFEL_SOURCE% or %EIFFEL_OUTPUT% sub directory)
-- Copy every files in the current directory (containing this README.md) to the directory that you create before (it will overrite some file, that is normal)
+- Copy every files in the current directory (containing this README.md) some place (not in the %EIFFEL_SOURCE% or %EIFFEL_OUTPUT% sub directory)
 - Copy the gdiplus.dll (if you did get it) in the same delivery scripts directory that you created before
 - Start an EiffelStudio command prompt (Be sure, from the first line in the command prompt, that EiffelStudio uses msc and not mingw. If it is mingw, you will have to modify the Windows Registry. See: https://www.eiffel.org/doc/eiffelstudio/Supported_C_compilers)
 - From the EiffelStudio command prompt, start 4nt
@@ -71,7 +70,7 @@ For example, here is the command I used to generate the Windows Released (from a
 "C:\Program Files (x86)\JPSoft\4NT8\4nt.exe"
 cd \Porter_Windows\windows_scripts
 set ISE_C_COMPILER_VER=VC120
-set EIFFEL_SOURCE=C:\Porter_Windows\EiffelStudio_19.12
+set EIFFEL_SOURCE=C:\Porter_Windows\EiffelStudio_20.05
 set EIFFEL_OUTPUT=C:\Porter_Windows\Output
 set ORACLE_HOME=C:\oraclexe64\app\oracle\product\11.2.0\server
 set MYSQL=C:\mysql

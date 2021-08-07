@@ -1,3 +1,3 @@
 @echo off
-call Set-Env-MinGW.bat
+call %~dp0\Set-Env-MinGW.bat
 esbuilder

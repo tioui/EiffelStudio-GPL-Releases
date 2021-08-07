@@ -60,9 +60,9 @@ diff -ruN EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/external_wizards
  	launch_wizard (callback_filename: READABLE_STRING_GENERAL)
  			-- Launch the wizard using the file `callback_filename' as callback.
  		local
-diff -ruN EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e EiffelStudio_19.12_new/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e
---- EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e	2021-08-05 08:31:29.105524298 -0400
-+++ EiffelStudio_19.12_new/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e	2021-08-03 09:46:38.000000000 -0400
+diff -urN build/Src/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e EiffelStudio_20.05_new/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e
+--- build/Src/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e	2021-08-05 13:11:56.482503902 -0400
++++ EiffelStudio_20.05_new/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e	2021-08-05 21:42:13.071116957 -0400
 @@ -18,11 +18,6 @@
  			{NONE} all
  		end
@@ -75,7 +75,7 @@ diff -ruN EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/main/es_abstract
  	EV_SHARED_APPLICATION
  		export
  			{NONE} all
-@@ -244,7 +239,7 @@
+@@ -266,7 +261,7 @@
  
  	display_launching_page
  		do
@@ -84,41 +84,53 @@ diff -ruN EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/main/es_abstract
  				display_version_updater_check (agent display_startup_page)
  			else
  				display_startup_page
-diff -ruN EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e EiffelStudio_19.12_new/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e
---- EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e	2021-08-05 08:31:30.201747793 -0400
-+++ EiffelStudio_19.12_new/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e	2021-08-03 09:51:14.000000000 -0400
+diff -urN build/Src/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e EiffelStudio_20.05_new/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e
+--- build/Src/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e	2021-08-05 13:11:58.226516809 -0400
++++ EiffelStudio_20.05_new/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e	2021-08-05 22:23:25.937467657 -0400
 @@ -16,8 +16,6 @@
  
  	ES_SHARED_FONTS_AND_COLORS
  
 -	SHARED_ES_CLOUD_SERVICE
 -
- create
- 	make
+ 	SHARED_LOCALE
  
-@@ -54,21 +52,6 @@
- 				if not license_accepted then
- 					switch_to_community_agreement_page
- 					show_modal_to_window (win)
--				elseif is_cloud_enabled then
+ create
+@@ -51,32 +49,8 @@
+ feature -- Execution
+ 
+ 	start (win: EV_WINDOW)
+-		local
+-			acc: ES_ACCOUNT
+ 		do
+-			if terms_agreement_required or is_cloud_enabled then
+-				if terms_agreement_required and not license_accepted then
+-					switch_to_user_agreement_page
+-					show_modal_to_window (win)
+-				elseif is_cloud_enabled and then attached es_cloud_s.service as cld then
 -					if is_logged_in then
--						if
--							attached es_cloud_s.service as cld and then
--							attached cld.active_account as acc
--						then
--							cld.on_account_logged_in (acc)
--						end
+-						acc := cld.active_account
+-					end
+-					if acc /= Void and then not acc.is_expired then --and then acc.has_active_plan then
+-						cld.on_account_signed_in (acc)
 -						on_next
 -					elseif {ES_IDE_SETTINGS}.cloud_required then
--						switch_to_account_page
+-						switch_to_account_page (cld, if acc /= Void then acc.username else Void end, False)
 -						show_modal_to_window (win)
 -					else
 -						on_next
 -					end
- 				else
- 					on_next
- 				end
-@@ -235,17 +218,12 @@
+-				else
+-					on_next
+-				end
+-			else
+-				on_next
+-			end
++			on_next
+ 		end
+ 
+ 	switch_to_user_agreement_page
+@@ -245,17 +219,12 @@
  
  	is_cloud_enabled: BOOLEAN
  		do
@@ -138,15 +150,15 @@ diff -ruN EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/startup/es_start
  		end
  
  feature -- Text
-@@ -288,15 +266,7 @@
+@@ -291,15 +260,7 @@
  			preferences.misc_data.set_license_accepted (True)
  				-- Save preferences right away.
  			preferences.preferences.save_preferences
--			if is_cloud_enabled then
+-			if is_cloud_enabled and then attached {ES_CLOUD_S} es_cloud_s.service as cld then
 -				if is_logged_in then
 -					on_next
 -				else
--					switch_to_account_page
+-					switch_to_account_page (cld, Void, False)
 -				end
 -			else
 -				on_next
@@ -155,15 +167,3 @@ diff -ruN EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/startup/es_start
  		end
  
  	on_purchase_selected
-diff -ruN EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/windows/development_window/initialization/eb_development_window_menu_builder.e EiffelStudio_19.12_new/Src/Eiffel/interface/new_graphical/windows/development_window/initialization/eb_development_window_menu_builder.e
---- EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/windows/development_window/initialization/eb_development_window_menu_builder.e	2021-08-05 11:07:37.995901523 -0400
-+++ EiffelStudio_19.12_new/Src/Eiffel/interface/new_graphical/windows/development_window/initialization/eb_development_window_menu_builder.e	2021-08-05 11:07:55.036112016 -0400
-@@ -33,7 +33,7 @@
- 			build_refactoring_menu
- 			build_window_menu
- 			build_help_menu
--			build_cloud_account_menu
-+--			build_cloud_account_menu
- 				-- Build the menu bar.
- 			build_menu_bar
- 		end

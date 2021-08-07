@@ -1,3 +1,3 @@
 @echo off
-call Set-Env-MSC.bat
+call %~dp0\Set-Env-MSC.bat
 estudio

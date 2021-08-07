@@ -1,7 +1,7 @@
 "C:\Program Files (x86)\JPSoft\4NT8\4nt.exe"
 cd \Porter_Windows\windows_scripts
 set ISE_C_COMPILER_VER=VC120
-set EIFFEL_SOURCE=C:\Porter_Windows\EiffelStudio_19.12
+set EIFFEL_SOURCE=C:\Porter_Windows\EiffelStudio_20.05
 set EIFFEL_OUTPUT=C:\Porter_Windows\Output
 set ORACLE_HOME=C:\oraclexe64\app\oracle\product\11.2.0\server
 set MYSQL=C:\mysql

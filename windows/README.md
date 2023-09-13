@@ -20,13 +20,13 @@ Programs to install:
 
 ----------------------------------------------------------------------------------------------------------
 Note: For Oracle Database Express Edition to compile using MinGW compiler, you need to change the file
-app\oracle\product\11.2.0\server\oci\include inside the Oracle Database installation directory like this:
+app\oracle\product\11.2.0\server\oci\include\oratypes.h inside the Oracle Database installation directory like this:
 
 Adding the include file (line 9):
 
 #include <inttypes.h>
 
-Also, modify the lines 136 and 137 from:
+Also, modify the lines 236 and 237 from:
 
 typedef unsigned _int64 ubig_ora;     
 typedef   signed _int64 sbig_ora; 
@@ -47,6 +47,9 @@ Execution
 You have to set the environment variables:
 
 - ISE_C_COMPILER_VER=VC120
+- ISE_C_COMPILER=msc
+- ISE_VC_MSC=VC120
+- ISE_VC_MSC_VC140=VC140
 - EIFFEL_SOURCE=Directory of the EiffelStudio source code (the complete GIT, not the Src directory)
 - EIFFEL_OUTPUT=Directory that will be used to generate the build
 - ORACLE_HOME=Directory of the server directory in the Oracle Database Express installation directory
@@ -61,24 +64,29 @@ To execute:
 - From the EiffelStudio command prompt, start 4nt
 - From 4nt, set the environment variables
 - From 4nt, go into the Delivery Scripts directory that you create before
-- Execute `call make_delivery.btm`
+- Execute `call make_delivery.btm no_msi`
 - Hope for the best!
 
 For example, here is the command I used to generate the Windows Released (from an EiffelStudio prompt):
 
 ```dos
-"C:\Program Files (x86)\JPSoft\4NT8\4nt.exe"
-cd \Porter_Windows\windows_scripts
+"C:\program\4nt\4nt.exe"
+cd C:\install\windows
+set ISE_VC_MSC=VC120
+set ISE_VC_MSC_VC140=VC140
+set ISE_C_COMPILER=msc
 set ISE_C_COMPILER_VER=VC120
-set EIFFEL_SOURCE=C:\Porter_Windows\EiffelStudio_20.05
-set EIFFEL_OUTPUT=C:\Porter_Windows\Output
-set ORACLE_HOME=C:\oraclexe64\app\oracle\product\11.2.0\server
-set MYSQL=C:\mysql
-set WIN_BASH=C:\win-bash
-set PATH=%PATH%;C:\7-Zip;C:\mingw-w64\mingw32\bin
-call make_delivery.btm
+set EIFFEL_SOURCE=C:\install\Src
+set EIFFEL_OUTPUT=C:\install\Output
+set ERROR_LOG=%EIFFEL_OUTPUT%\error.log
+set INSTALL_LOG=%EIFFEL_OUTPUT%\install.log
+set ORACLE_HOME=C:\program\oraclexe\app\oracle\product\11.2.0\server
+set MYSQL=C:\program\mysql
+set WIN_BASH=C:\program\shell
+set PATH=%PATH%;C:\Program Files\7-Zip
+call make_delivery.btm no_msi
 ```
 
 Note that you can une the "es.patch" file to remove unwanted functionnality
 (Cloud and Update). You have to use it on the %EIFFEL_SOURCE% directory
-before calling the "call make_delivery.btm".
+before calling the "call make_delivery.btm no_msi".

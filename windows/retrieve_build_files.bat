@@ -8,12 +8,12 @@ set SVN_URL=%*
 REM Check out bitmaps from Build delivery
 md Delivery
 md Delivery\esbuilder
-echo xcopy %EIFFEL_SOURCE%/Src/Delivery/esbuilder/bitmaps Delivery\esbuilder\bitmaps /E /I /Y 
-xcopy %EIFFEL_SOURCE%/Src/Delivery/esbuilder/bitmaps Delivery\esbuilder\bitmaps /E /I /Y < NUL
+echo xcopy %EIFFEL_SOURCE%\Src\Delivery\esbuilder\bitmaps Delivery\esbuilder\bitmaps /E /I /Y 
+xcopy %EIFFEL_SOURCE%\Src\Delivery\esbuilder\bitmaps Delivery\esbuilder\bitmaps /E /I /Y < NUL
 
 REM Check out files from vision2_demo
-echo xcopy %EIFFEL_SOURCE%/Src/Delivery/vision2_demo Delivery/vision2_demo /E /I /Y
-xcopy %EIFFEL_SOURCE%/Src/Delivery/vision2_demo Delivery/vision2_demo /E /I /Y > NUL
+echo xcopy %EIFFEL_SOURCE%\Src\Delivery\vision2_demo Delivery\vision2_demo /E /I /Y
+xcopy %EIFFEL_SOURCE%\Src\Delivery\vision2_demo Delivery\vision2_demo /E /I /Y > NUL
 
 REM Copy template files
 XCOPY /Y /E /I Delivery\vision2_demo\templates .\templates

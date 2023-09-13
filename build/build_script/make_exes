@@ -93,7 +93,18 @@ set -- $EIFFEL_SRC 0000 gb_about_dialog_constants.e
 . $INIT_DIR/set_version.sh
 cd $EIFFEL_SRC/build
 clean_project
+
+
+if [ "$GTK_DIR" = "gtk3" ]; then
+	remtrace Use gtk3 to build EiffelBuild
+	export vision_implementation=gtk3
+else
+	remtrace Use gtk2 to build EiffelBuild
+	export vision_implementation=gtk2
+fi
+
 finalize esbuilder.ecf esbuilder
+unset vision_implementation
 tgz_ccode esbuilder esbuilder.tar.bz2
 if [ ! -f esbuilder.tar.bz2 ]; then
 	echo Could not finalize a new EiffelBuild
@@ -116,14 +127,34 @@ if [ ! "$NO_NEW_EC" ]; then
 	cd $FINALIZATION_DIR
 	copy $EIFFEL_SRC/Eiffel/Ace/ec.ecf ec.ecf
 	clean_project
-	finalize ec.ecf bench
-	tgz_ccode bench ec.tar.bz2
-	if [ ! -f ec.tar.bz2 ]; then
-		echo Could not finalize a new EiffelStudio
-		CANCEL
+
+	if [ ! -z "$INCLUDE_GTK2" ]; then
+		remtrace GPL EiffelStudio edition - gtk2
+		export vision_implementation=gtk2
+		finalize ec.ecf bench
+		unset vision_implementation
+		tgz_ccode bench ec_gtk2.tar.bz2
+		if [ ! -f ec_gtk2.tar.bz2 ]; then
+			echo Could not finalize a new EiffelStudio for GTK2
+			CANCEL
+		fi
+		clean_project
+		move ec_gtk2.tar.bz2 $EXPORT_DIR/bin/ec_gtk2_gpl.tar.bz2
 	fi
-	clean_project
-	move ec.tar.bz2 $EXPORT_DIR/bin/ec_gpl.tar.bz2
+
+	if [ ! -z "$INCLUDE_GTK3" ]; then
+		remtrace GPL EiffelStudio edition - gtk3
+		export vision_implementation=gtk3
+		finalize ec.ecf bench
+		unset vision_implementation
+		tgz_ccode bench ec_gtk3.tar.bz2
+		if [ ! -f ec_gtk3.tar.bz2 ]; then
+			echo Could not finalize a new EiffelStudio for GTK3
+			CANCEL
+		fi
+		clean_project
+		move ec_gtk3.tar.bz2 $EXPORT_DIR/bin/ec_gtk3_gpl.tar.bz2
+	fi
 
 	remtrace Batch version
 	clean_project
@@ -136,38 +167,6 @@ if [ ! "$NO_NEW_EC" ]; then
 	clean_project
 	move ecb.tar.bz2 $EXPORT_DIR/bin/ecb_gpl.tar.bz2
 
-	if [ "$MULTIPLE_EDITIONS" ]; then
-		remtrace Enterprise version edition
-		cd $FINALIZATION_DIR
-		cd $EIFFEL_SRC/Eiffel/API/constants
-		sed -e "s/Version_type_name:\ STRING\ =\ \"GPL\ Edition\"/Version_type_name:\ STRING\ =\ \"Enterprise\ Edition\"/g" system_constants.e >> new_system_constants.e
-		move new_system_constants.e system_constants.e
-		cd $FINALIZATION_DIR
-		copy $EIFFEL_SRC/tools/estudio_enterprise/ec.ecf ec.ecf
-		clean_project
-		finalize ec.ecf bench
-		tgz_ccode bench ec.tar.bz2
-		if [ ! -f ec.tar.bz2 ]; then
-			echo Could not finalize a new EiffelStudio
-			CANCEL
-		fi
-		clean_project
-		move ec.tar.bz2 $EXPORT_DIR/bin/ec_ent.tar.bz2
-
-		remtrace Batch version
-		clean_project
-		finalize ec.ecf batch
-		tgz_ccode batch ecb.tar.bz2
-		if [ ! -f ecb.tar.bz2 ]; then
-			echo Could not finalize a new batch version
-			CANCEL
-		fi
-		clean_project
-		move ecb.tar.bz2 $EXPORT_DIR/bin/ecb_ent.tar.bz2
-	fi
-else
-	# FIXME doesn't work.
-	quick_move studio/spec/$ISE_PLATFORM/bin/ec
 fi
 
 remtrace Recompile quick_finalize

@@ -16,11 +16,13 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
 
-FROM ubuntu:14.04
+FROM ubuntu:18.04
 
 LABEL maintainer="Louis M <eiffel@tioui.com>"
 
 ADD ./build /home/eiffel
+
+ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update && apt-get install -y --no-install-recommends --no-install-suggests \
         ca-certificates curl \
@@ -28,9 +30,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends --no-install-su
         gcc make dist \
         libxtst-dev \
         libgtk2.0-dev \
+        libgtk-3-dev \
+        libgdk-pixbuf2.0-dev \
         libssl-dev \
         libcurl4-openssl-dev \
 		pax \
+        dos2unix \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
 	&& mkdir /home/eiffel/Output
@@ -42,5 +47,5 @@ ENV ISE_PLATFORM=linux-x86-64
 #ENV ONLY_PORTERPACKAGE=true
 
 WORKDIR /home/eiffel/
+RUN dos2unix /home/eiffel/build_porterpackage.sh
 CMD /bin/bash /home/eiffel/build_porterpackage.sh
-

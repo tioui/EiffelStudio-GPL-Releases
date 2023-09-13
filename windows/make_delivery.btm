@@ -1,35 +1,34 @@
 @echo off
-iff not defined EIFFEL_OUTPUT then
-	echo Variable EIFFEL_OUTPUT must be defined.
-	CANCEL
-endiff
-iff not defined EIFFEL_SOURCE then
-	echo Variable EIFFEL_SOURCE must be defined.
-	CANCEL
-endiff
+setlocal
 
-
-if not isdir %EIFFEL_OUTPUT% md %EIFFEL_OUTPUT%
-
-REM Adding Wix to the path.
-set PATH=%PATH;%@EXECSTR[cd]\wix
 set OLD_PATH=%PATH
 set OLD_EIFFEL_SRC=%EIFFEL_SRC
 set OLD_ISE_LIBRARY=%ISE_LIBRARY
 set OLD_ISE_SRC=%ISE_SRC
-set INIT_DIR=%@EXECSTR[cd]
 set TMP_ISE_EIFFEL=%ISE_EIFFEL
 
-call set_aliases.btm
-REM This is not a comment, it should create a 0-sized log file.
-REM > %INSTALL_LOG
+REM clear previous cache
+del /syeqxz %~dp0_cache
+
+REM load initialization
+call %~dp0init.btm
+
 remtrace Set up the environment
 on break goto broken
 TIMER ON /1 >> NUL
 TIMER ON /2 >> NUL
 iff %@INDEX[%@LOWER[%$],h] ge 0 then
-	echo Installation for ISE Eiffel 5 generation.
-	echo Parameters are no_compile, no_new_ec, no_wizards and no_install (or nothing to fully regenerate the installation).
+	echo Installation for ISE Eiffel .
+	echo Parameters are 
+	echo   - no_compile: to discard any compilation
+	echo   - no_new_ec: to avoid compiling a new version of EiffelStudio
+	echo   - enterprise: to build only the enterprise version of EiffelStudio
+	echo   - standard: to build only the Standard version of EiffelStudio
+	echo   - no_wizards: to discard wizards building
+	echo   - no_install: to generare only the delivery (but not the installation executable) 
+	echo   - no_msi: exclude .msi building
+	echo   - no_reuse: do not reuse executable previously compiled
+	echo   (or nothing to fully regenerate the installation).
 	CANCEL
 endiff
 iff %@INDEX[%@LOWER[%$],no_compile] ge 0 then
@@ -42,31 +41,63 @@ iff %@INDEX[%@LOWER[%$],no_install] ge 0 then
 else
 	unset /Q NO_INSTALL
 endiff
+iff %@INDEX[%@LOWER[%$],no_msi] ge 0 then
+	set NO_MSI="True"
+::else
+::	unset /Q NO_MSI
+endiff
 iff %@INDEX[%@LOWER[%$],no_new_ec] ge 0 then
 	set NO_NEW_EC="True"
 else
 	unset /Q NO_NEW_EC
 endiff
+iff %@INDEX[%@LOWER[%$],no_reuse] ge 0 then
+	set NO_REUSE="True"
+else
+	unset /Q NO_REUSE
+endiff
+iff %@INDEX[%@LOWER[%$],enterprise] ge 0 then
+	set NO_STANDARD_BUILD="True"
+endiff
+iff %@INDEX[%@LOWER[%$],standard] ge 0 then
+	set NO_ENTERPRISE_BUILD="True"
+	unset /Q BUILD_ENTERPRISE
+	set BUILD_STANDARD="True"
+endiff
 iff %@INDEX[%@LOWER[%$],no_wizard] ge 0 then
 	set NO_WIZARDS="True"
-else
-	unset /Q NO_WIZARDS
+::else
+::	unset /Q NO_WIZARDS
 endiff
 
-set EIFFEL_SRC=%TMP_EIFFEL_SRC
-set ISE_LIBRARY=%TMP_EIFFEL_SRC
-set ISE_SRC=%TMP_EIFFEL_SRC
 cdd %INIT_DIR
+
+call check_environment.btm
+call display_environment.btm
+
+REM This is not a comment, it should create a 0-sized log file.
+REM > %INSTALL_LOG%
+REM > %ERROR_LOG%
 remtrace Approximative starting time:
 remtrace %_TIME
 
-call check_environment.btm
+remtrace --------------------------------
+remtrace Installation parameters are:
+remtrace  - ISE_EIFFEL=%ISE_EIFFEL%
+remtrace  - ISE_PLATFORM=%ISE_PLATFORM%
+remtrace  - ISE_C_COMPILER=%ISE_C_COMPILER%
+remtrace  - ISE_C_COMPILER_VER=%ISE_C_COMPILER_VER%
+remtrace  - INSTALL_DIR=%INSTALL_DIR%
+remtrace  - STUDIO_DIR=%STUDIO_DIR%
+remtrace --------------------------------
+
 cdd %INIT_DIR
 
+give_time_to warm up
 remtrace Retrieve and organize the delivery
 remtrace Remove %INSTALL_DIR
-if isdir %INSTALL_DIR fullrd %INSTALL_DIR >>& %INSTALL_LOG
-if exist %INSTALL_DIR fullrf %INSTALL_DIR >>& %INSTALL_LOG
+if isdir %INSTALL_DIR nolog_fullrd %INSTALL_DIR >>& %INSTALL_LOG
+if exist %INSTALL_DIR nolog_fullrf %INSTALL_DIR >>& %INSTALL_LOG
 iff exist %INSTALL_DIR then
 	echo Cannot delete %INSTALL_DIR!
 	CANCEL
@@ -80,8 +111,12 @@ remtrace studio
 echo xcopy %EIFFEL_SOURCE%\Src\Delivery\studio studio /E /I /Y 
 xcopy %EIFFEL_SOURCE%\Src\Delivery\studio studio /E /I /Y > NUL
 fullrd studio\bitmaps\src
+fullrf studio\bitmaps\png\icons_16x16.png
+fullrf studio\bitmaps\png\small_12x12.png
+fullrf studio\bitmaps\png\mini_10x10.png
 fullrd studio\help\defaults\unix
 fullrd studio\spec\unix
+fullrd tools\spec\unix
 cdd %STUDIO_DIR\studio\spec
 move windows\compile_library.bat %ISE_PLATFORM\bin\
 move windows\mkdir.bat %ISE_PLATFORM\bin\
@@ -151,18 +186,6 @@ fullrd widget_test
 cd ..
 cd ..
 remtrace precomp
-safe_md %STUDIO_DIR\experimental
-safe_md %STUDIO_DIR\experimental\precomp
-safe_md %STUDIO_DIR\experimental\precomp\spec
-cd %STUDIO_DIR\experimental\precomp\spec
-echo xcopy %EIFFEL_SOURCE%\Src\Delivery\precomp\spec\platform %ISE_PLATFORM /E /I /Y 
-xcopy %EIFFEL_SOURCE%\Src\Delivery\precomp\spec\platform %ISE_PLATFORM /E /I /Y > NUL
-echo xcopy %EIFFEL_SOURCE%\Src\Delivery\precomp\spec\dotnet %ISE_PLATFORM-dotnet /E /I /Y 
-xcopy %EIFFEL_SOURCE%\Src\Delivery\precomp\spec\dotnet %ISE_PLATFORM-dotnet /E /I /Y > NUL
-cdd %ISE_PLATFORM
-fullrf *-safe.ecf
-cdd ..\%ISE_PLATFORM-dotnet
-fullrf *-safe.ecf
 safe_md %STUDIO_DIR\precomp
 safe_md %STUDIO_DIR\precomp\spec
 cd %STUDIO_DIR\precomp\spec
@@ -182,6 +205,9 @@ move %STUDIO_DIR\studio\wizards\new_projects\ewf\ewf.dsc %STUDIO_DIR\studio\wiza
 echo xcopy %EIFFEL_SOURCE%\Src\help\wizards\library\rootdir %STUDIO_DIR\studio\wizards\new_projects\library /E /I /Y 
 xcopy %EIFFEL_SOURCE%\Src\help\wizards\library\rootdir %STUDIO_DIR\studio\wizards\new_projects\library /E /I /Y > NUL
 move %STUDIO_DIR\studio\wizards\new_projects\library\library.dsc %STUDIO_DIR\studio\wizards\new_projects\library.dsc
+echo xcopy %EIFFEL_SOURCE%\Src\help\wizards\wrapc\rootdir %STUDIO_DIR\studio\wizards\new_projects\wrapc /E /I /Y
+xcopy %EIFFEL_SOURCE%\Src\help\wizards\wrapc\rootdir %STUDIO_DIR\studio\wizards\new_projects\wrapc /E /I /Y
+move %STUDIO_DIR\studio\wizards\new_projects\wrapc\wrapc.dsc %STUDIO_DIR\studio\wizards\new_projects\wrapc.dsc
 
 remtrace C_library
 safe_md %STUDIO_DIR\C_library
@@ -197,14 +223,12 @@ echo xcopy %EIFFEL_SOURCE%\Src\C_library\openssl\clibs_openssl.ecf openssl /E /I
 xcopy %EIFFEL_SOURCE%\Src\C_library\openssl\clibs_openssl.ecf openssl /E /I /Y > NUL
 echo xcopy %EIFFEL_SOURCE%\Src\C_library\openssl\include openssl\include /E /I /Y 
 xcopy %EIFFEL_SOURCE%\Src\C_library\openssl\include openssl\include /E /I /Y > NUL
-cdd %STUDIO_DIR\experimental
-echo xcopy %EIFFEL_SOURCE%\Src\experimental\C_library C_library /E /I /Y
-xcopy %EIFFEL_SOURCE%\Src\experimental\C_library C_library /E /I /Y > NUL
 cdd %STUDIO_DIR
 remtrace root
 echo xcopy %EIFFEL_SOURCE%\Src\Delivery Delivery /E /I /Y 
 xcopy %EIFFEL_SOURCE%\Src\Delivery Delivery /E /I /Y > NUL
 move Delivery\*.* . >>& %INSTALL_LOG
+give_time_to move Delivery files.
 fullrd Delivery >>& %INSTALL_LOG
 fullrf INSTALL README make_install compile_libraries
 remtrace eweasel (just the necessary)
@@ -249,31 +273,41 @@ remtrace Checkout all the libraries
 cdd %INIT_DIR
 call make_libraries.btm %STUDIO_DIR library
 cdd %INIT_DIR
-call make_libraries.btm %STUDIO_DIR\experimental experimental\library
-cdd %INIT_DIR
 call make_other_libraries.btm %STUDIO_DIR
 
+:clibs
 remtrace Compile C code of Eiffel Software C libraries
-cdd %INIT_DIR
-espawn -u:VC140 "%COMSPEC% /c compile_c_libraries.btm %STUDIO_DIR msc_vc140"
-cdd %INIT_DIR
-espawn -u:%ISE_C_COMPILER_VER% "%COMSPEC% /c compile_c_libraries.btm %STUDIO_DIR msc"
-cdd %INIT_DIR
-call compile_c_libraries.btm %STUDIO_DIR mingw
+remtrace HAS_VC_MSC=%HAS_VC_MSC%
+remtrace HAS_VC_MSC_VC140=%HAS_VC_MSC_VC140%
+remtrace HAS_C_COMP_VER=%HAS_C_COMP_VER% : ISE_C_COMPILER_VER=%ISE_C_COMPILER_VER% (ISE_C_COMPILER=%ISE_C_COMPILER%)
 
+iff "%HAS_VC_MSC%" == "True" then
+	cdd %INIT_DIR
+	remtrace Build the C libraries of non-Eiffel Software C libraries for msc (%ISE_VC_MSC%)
+	call espawn -u:%ISE_VC_MSC% "%COMSPEC% /c compile_c_libraries.btm %STUDIO_DIR% msc"
+endiff
+iff "%HAS_VC_MSC_VC140%" == "True" then
+	cdd %INIT_DIR
+	remtrace Build the C libraries of non-Eiffel Software C libraries for msc_vc140 (%ISE_VC_MSC_VC140%)
+	call espawn -u:%ISE_VC_MSC_VC140% "%COMSPEC% /c compile_c_libraries.btm %STUDIO_DIR% msc_vc140"
+endiff
 cdd %INIT_DIR
-espawn -u:VC140 "%COMSPEC% /c compile_c_libraries.btm %STUDIO_DIR\experimental msc_vc140"
-cdd %INIT_DIR
-espawn -u:%ISE_C_COMPILER_VER% "%COMSPEC% /c compile_c_libraries.btm %STUDIO_DIR\experimental msc"
-cdd %INIT_DIR
-call compile_c_libraries.btm %STUDIO_DIR\experimental mingw
+remtrace Build the C libraries of non-Eiffel Software C libraries for mingw
+call compile_c_libraries.btm %STUDIO_DIR% mingw
 
+remtrace Build other C libraries
 
-remtrace Build the C libraries of non-Eiffel Software C libraries
-cdd %INIT_DIR
-espawn -u:VC140 "%COMSPEC% /c compile_other_c_libraries.btm %STUDIO_DIR msc_vc140"
-cdd %INIT_DIR
-espawn -u:%ISE_C_COMPILER_VER% "%COMSPEC% /c compile_other_c_libraries.btm %STUDIO_DIR msc"
+iff "%HAS_VC_MSC%" == "True" then
+	remtrace Build the other C libraries of non-Eiffel Software C libraries for msc (%ISE_VC_MSC%)
+	cdd %INIT_DIR
+	espawn -u:%ISE_VC_MSC% "%COMSPEC% /c compile_other_c_libraries.btm %STUDIO_DIR msc"
+endiff
+iff "%HAS_VC_MSC_VC140%" == "True" then
+	remtrace Build the other C libraries of non-Eiffel Software C libraries for msc_vc140 (%ISE_VC_MSC_VC140%)
+	cdd %INIT_DIR
+	espawn -u:%ISE_VC_MSC_VC140% "%COMSPEC% /c compile_other_c_libraries.btm %STUDIO_DIR msc_vc140"
+endiff
+remtrace Build the other C libraries of non-Eiffel Software C libraries for mingw
 cdd %INIT_DIR
 call compile_other_c_libraries.btm %STUDIO_DIR mingw
 
@@ -284,7 +318,9 @@ iff not defined NO_COMPILE then
 	remtrace Update all libraries
 	iff isdir %EIFFEL_SRC then
 		remtrace Delete %EIFFEL_SRC
-		fullrd %EIFFEL_SRC
+		rename %EIFFEL_SRC% %EIFFEL_SRC%-deleting
+		fullrd %EIFFEL_SRC%-deleting
+		give_time_to remove %EIFFEL_SRC%
 	endiff
 	safe_md %EIFFEL_SRC
 
@@ -294,12 +330,13 @@ iff not defined NO_COMPILE then
 	echo xcopy %EIFFEL_SOURCE%\Src\* %EIFFEL_SRC\ /E /I /Y 
 	xcopy %EIFFEL_SOURCE%\Src\* %EIFFEL_SRC\ /E /I /Y > NUL
 
+	set SVN_VERSION=%@EXECSTR[%WIN_BASH%\bash.exe set_version.sh %EIFFEL_SRC]
+	remtrace Building the revision %SVN_VERSION%
+	echo %STUDIO_VERSION_MAJOR_MINOR% %SVN_VERSION% > %INSTALL_DIR%\%STUDIO_VERSION_MAJOR_MINOR%_%SVN_VERSION%.txt
+
 	remtrace Build the normal libraries
 	cdd %INIT_DIR
 	call update_libraries.btm %EIFFEL_SRC
-	remtrace Build the experimental libraries
-	cdd %INIT_DIR
-	call update_libraries.btm %EIFFEL_SRC\experimental
 
 	cdd %INIT_DIR
 	give_time_to update libraries
@@ -311,8 +348,6 @@ iff not defined NO_COMPILE then
 
 	iff not defined NO_WIZARDS then
 		remtrace Generate the precompilation and the "new project" wizards
-		echo xcopy make_a_wizard.btm %EIFFEL_SRC\help\wizards\ /E /I /Y
-		xcopy make_a_wizard.btm %EIFFEL_SRC\help\wizards\ /E /I /Y < NUL
 		call make_wizards.btm
 		cdd %INIT_DIR
 		give_time_to compile basic wizards
@@ -342,12 +377,8 @@ else
 	give_time_to copy executables from the old delivery
 endiff
 
-cdd %INIT_DIR
-
-iff not defined NO_INSTALL then
-	espawn -u:%ISE_C_COMPILER_VER% "%COMSPEC% /c make_installations.btm"
-	cdd %INIT_DIR
-endiff
+call %INIT_DIR%\call_make_installations.btm
+cdd %INIT_DIR%
 
 REM Finish
 remtrace final time:

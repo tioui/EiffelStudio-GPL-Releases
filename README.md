@@ -20,7 +20,7 @@ Using the script
 
 ```bash
 pushd build
-cp -rp /usr/local/Eiffel_19.12/ Eiffel
+cp -rp /usr/local/Eiffel_22.05/ Eiffel
 git clone https://github.com/tioui/EiffelStudio.git Src
 pushd Src
 git checkout <commit>
@@ -36,6 +36,10 @@ The "es.patch" file can be used to remove unwanted functionnality (Cloud and Upd
 necessary work on any commit, so modification may be necessary. You have to use it before building the
 docker image (just after the "git checkout <commit>").
 
+```bash
+patch -ruN -d build -p0 < es.patch
+```
+
 The Output directory now contain the PorterPackage (and the release if you
 select "ENV ONLY_PORTERPACKAGE=true" in the dockerfile) is in the Output
 directory.
@@ -44,7 +48,7 @@ License
 -------
 
     EiffelStudio GPL releases
-    Copyright (C) 2021  Louis M
+    Copyright (C) 2023  Louis M
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

@@ -1,190 +1,77 @@
-diff -urN build/Src/Src/Delivery/scripts/unix/compile_exes EiffelStudio_20.05_new/Src/Delivery/scripts/unix/compile_exes
---- build/Src/Src/Delivery/scripts/unix/compile_exes	2021-08-05 13:11:32.218324210 -0400
-+++ EiffelStudio_20.05_new/Src/Delivery/scripts/unix/compile_exes	2021-08-06 01:03:44.528676919 -0400
-@@ -234,23 +234,23 @@
- 
- remtrace Standard edition
- cd $EXPORT_DIR/bin
--cp ec_std.tar.bz2 ec.tar.bz2
-+cp ec_gpl.tar.bz2 ec.tar.bz2
- untgz_ccode ec $should_cancel
- if [ -f ec ]; then
- 	bzip2 ec
--	move ec.bz2 $EXPORT_DIR/ecs/ec_std.bz2
-+	move ec.bz2 $EXPORT_DIR/ecs/ec_gpl.bz2
- fi
- 
- remtrace Standard batch edition
--cp ecb_std.tar.bz2 ecb.tar.bz2
-+cp ecb_gpl.tar.bz2 ecb.tar.bz2
- untgz_ccode ecb
- bzip2 ecb
--move ecb.bz2 $EXPORT_DIR/ecs/ecb_std.bz2
-+move ecb.bz2 $EXPORT_DIR/ecs/ecb_gpl.bz2
- 
- 
- if [ -z "$MULTIPLE_EDITIONS" ]; then
--	bunzip2 -c $EXPORT_DIR/ecs/ec_std.bz2 > $INSTALL_DIR/studio/spec/$ISE_PLATFORM/bin/ec
--	bunzip2 -c $EXPORT_DIR/ecs/ecb_std.bz2 > $INSTALL_DIR/studio/spec/$ISE_PLATFORM/bin/ecb
-+	bunzip2 -c $EXPORT_DIR/ecs/ec_gpl.bz2 > $INSTALL_DIR/studio/spec/$ISE_PLATFORM/bin/ec
-+	bunzip2 -c $EXPORT_DIR/ecs/ecb_gpl.bz2 > $INSTALL_DIR/studio/spec/$ISE_PLATFORM/bin/ecb
- 	chmod a+rx $INSTALL_DIR/studio/spec/$ISE_PLATFORM/bin/ec
- 	chmod go-w $INSTALL_DIR/studio/spec/$ISE_PLATFORM/bin/ec 
- 	chmod a+rx $INSTALL_DIR/studio/spec/$ISE_PLATFORM/bin/ecb
-diff -urN build/Src/Src/Delivery/scripts/unix/make_exes EiffelStudio_20.05_new/Src/Delivery/scripts/unix/make_exes
---- build/Src/Src/Delivery/scripts/unix/make_exes	2021-08-05 13:11:32.222324240 -0400
-+++ EiffelStudio_20.05_new/Src/Delivery/scripts/unix/make_exes	2021-08-06 01:04:00.324789721 -0400
-@@ -106,7 +106,7 @@
- 		CANCEL
- 	fi
- 	clean_project
--	move ec.tar.bz2 $EXPORT_DIR/bin/ec_std.tar.bz2
-+	move ec.tar.bz2 $EXPORT_DIR/bin/ec_gpl.tar.bz2
- 
- 	remtrace Batch version
- 	clean_project
-@@ -117,7 +117,7 @@
- 		CANCEL
- 	fi
- 	clean_project
--	move ecb.tar.bz2 $EXPORT_DIR/bin/ecb_std.tar.bz2
-+	move ecb.tar.bz2 $EXPORT_DIR/bin/ecb_gpl.tar.bz2
- 
- 	if [ "$MULTIPLE_EDITIONS" ]; then
- 		remtrace Enterprise version edition
-diff -urN build/Src/Src/Delivery/scripts/unix/make_images EiffelStudio_20.05_new/Src/Delivery/scripts/unix/make_images
---- build/Src/Src/Delivery/scripts/unix/make_images	2021-08-05 13:11:32.218324210 -0400
-+++ EiffelStudio_20.05_new/Src/Delivery/scripts/unix/make_images	2021-08-06 09:08:11.638641042 -0400
-@@ -40,19 +40,19 @@
- cp -r runtimes/* $INSTALL_DIR/studio/spec/$ISE_PLATFORM/lib
- 
- remtrace Preparing Standard version
--bunzip2 -c $EXPORT_DIR/ecs/ec_std.bz2 > $INSTALL_DIR/studio/spec/$ISE_PLATFORM/bin/ec
--bunzip2 -c $EXPORT_DIR/ecs/ecb_std.bz2 > $INSTALL_DIR/studio/spec/$ISE_PLATFORM/bin/ecb
-+bunzip2 -c $EXPORT_DIR/ecs/ec_gpl.bz2 > $INSTALL_DIR/studio/spec/$ISE_PLATFORM/bin/ec
-+bunzip2 -c $EXPORT_DIR/ecs/ecb_gpl.bz2 > $INSTALL_DIR/studio/spec/$ISE_PLATFORM/bin/ecb
- chmod a+rx $INSTALL_DIR/studio/spec/$ISE_PLATFORM/bin/ec
- chmod go-w $INSTALL_DIR/studio/spec/$ISE_PLATFORM/bin/ec 
- chmod a+rx $INSTALL_DIR/studio/spec/$ISE_PLATFORM/bin/ecb
- chmod go-w $INSTALL_DIR/studio/spec/$ISE_PLATFORM/bin/ecb
--if [ -f licensing/eiffelstudio/license.txt ]; then
--	cp licensing/eiffelstudio/license.txt $INSTALL_DIR/LICENSE
-+if [ -f licensing/eiffelstudio/gpl.txt ]; then
-+	cp licensing/eiffelstudio/gpl.txt $INSTALL_DIR/LICENSE
- fi
- 
- remtrace Building Standard CD image
--pax -w -f Eiffel_${STUDIO_VERSION_MAJOR_MINOR}_rev_$FILE_SVN_REVISION-$ISE_PLATFORM.tar Eiffel_${STUDIO_VERSION_MAJOR_MINOR}
--bzip2 Eiffel_${STUDIO_VERSION_MAJOR_MINOR}_rev_$FILE_SVN_REVISION-$ISE_PLATFORM.tar
-+pax -w -f Eiffel_${STUDIO_VERSION_MAJOR_MINOR}_gpl_$FILE_SVN_REVISION-$ISE_PLATFORM.tar Eiffel_${STUDIO_VERSION_MAJOR_MINOR}
-+bzip2 Eiffel_${STUDIO_VERSION_MAJOR_MINOR}_gpl_$FILE_SVN_REVISION-$ISE_PLATFORM.tar
- 
- if [ "$MULTIPLE_EDITIONS" ]; then
- 	remtrace Preparing Enterprise version
-diff -urN build/Src/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e EiffelStudio_20.05_new/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e
---- build/Src/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e	2021-08-05 13:11:56.482503902 -0400
-+++ EiffelStudio_20.05_new/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e	2021-08-05 21:42:13.071116957 -0400
-@@ -18,11 +18,6 @@
- 			{NONE} all
- 		end
- 
--	SHARED_ES_CLOUD_SERVICE
--		export
--			{NONE} all
--		end
+diff -urN EiffelStudio22.05/Src/Eiffel/interface/graphical/foundations/tools/es_shell_tools.e Src/Src/Eiffel/interface/graphical/foundations/tools/es_shell_tools.e
+--- EiffelStudio22.05/Src/Eiffel/interface/graphical/foundations/tools/es_shell_tools.e	2023-09-07 20:56:33.108377088 -0400
++++ Src/Src/Eiffel/interface/graphical/foundations/tools/es_shell_tools.e	2023-09-09 10:18:46.450472235 -0400
+@@ -241,10 +241,6 @@
+ 			l_tools.put_last ({ES_TESTING_TOOL})
+ 			l_tools.put_last ({ES_TESTING_RESULTS_TOOL})
+ 			l_tools.put_last ({ES_WEB_BROWSER_TOOL})
 -
- 	EV_SHARED_APPLICATION
- 		export
- 			{NONE} all
-@@ -266,7 +261,7 @@
- 
- 	display_launching_page
- 		do
--			if preferences.dialog_data.show_update_manager_dialog then
-+			if False then
- 				display_version_updater_check (agent display_startup_page)
- 			else
- 				display_startup_page
-diff -urN build/Src/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e EiffelStudio_20.05_new/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e
---- build/Src/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e	2021-08-05 13:11:58.226516809 -0400
-+++ EiffelStudio_20.05_new/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e	2021-08-05 22:23:25.937467657 -0400
-@@ -16,8 +16,6 @@
- 
- 	ES_SHARED_FONTS_AND_COLORS
- 
--	SHARED_ES_CLOUD_SERVICE
+-				-- ES Cloud tool
+-			l_tools.put_last ({ES_CLOUD_ACCOUNT_TOOL})
 -
- 	SHARED_LOCALE
+ 				-- Source Control Management tool
+ 			l_tools.put_last ({ES_SCM_TOOL})
  
- create
-@@ -51,32 +49,8 @@
- feature -- Execution
+diff -urN EiffelStudio22.05/Src/Eiffel/interface/new_graphical/dialogs/eb_about_dialog.e Src/Src/Eiffel/interface/new_graphical/dialogs/eb_about_dialog.e
+--- EiffelStudio22.05/Src/Eiffel/interface/new_graphical/dialogs/eb_about_dialog.e	2023-09-07 20:56:34.308366379 -0400
++++ Src/Src/Eiffel/interface/new_graphical/dialogs/eb_about_dialog.e	2023-09-09 10:42:52.068304183 -0400
+@@ -78,7 +78,7 @@
+ 			copyright_label: EV_LABEL
+ 			registration_label: EV_TEXT
+ 			info_label: EV_LABEL
+-			l_update_check_link, l_license_link: EV_HIGHLIGHT_LINK_LABEL
++			l_license_link: EV_HIGHLIGHT_LINK_LABEL
+ 			hsep: EV_HORIZONTAL_SEPARATOR
+ 			ok_button: EV_BUTTON
+ 			white_cell: EV_CELL
+@@ -107,12 +107,6 @@
+ 			version_label.align_text_left
+ 			version_label.set_background_color (bg)
  
- 	start (win: EV_WINDOW)
--		local
--			acc: ES_ACCOUNT
- 		do
--			if terms_agreement_required or is_cloud_enabled then
--				if terms_agreement_required and not license_accepted then
--					switch_to_user_agreement_page
--					show_modal_to_window (win)
--				elseif is_cloud_enabled and then attached es_cloud_s.service as cld then
--					if is_logged_in then
--						acc := cld.active_account
--					end
--					if acc /= Void and then not acc.is_expired then --and then acc.has_active_plan then
--						cld.on_account_signed_in (acc)
--						on_next
--					elseif {ES_IDE_SETTINGS}.cloud_required then
--						switch_to_account_page (cld, if acc /= Void then acc.username else Void end, False)
--						show_modal_to_window (win)
--					else
--						on_next
--					end
--				else
--					on_next
--				end
--			else
--				on_next
+-			if {ES_GRAPHIC}.is_standard_edition then
+-					-- Check for update ...
+-				create l_update_check_link.make_with_text ("Check for update (channel: " + preferences.misc_data.update_channel + ")")
+-				l_update_check_link.select_actions.extend (agent check_for_update (l_update_check_link))
 -			end
-+			on_next
- 		end
+-
+ 			create l_license_link.make_with_text (interface_names.l_read_license_text)
+ 			l_license_link.select_actions.extend (agent do (create {EB_LICENSE_COMMAND}).execute end)
  
- 	switch_to_user_agreement_page
-@@ -245,17 +219,12 @@
- 
- 	is_cloud_enabled: BOOLEAN
- 		do
--			Result := es_cloud_s.service /= Void
-+			Result := False
- 		end
- 
- 	is_logged_in: BOOLEAN
- 		do
--			if attached es_cloud_s.service as cld then
--				Result := cld.active_account /= Void
--			else
--					-- ES Cloud is not activated!
--				Result := True
+@@ -132,10 +126,6 @@
+ 			eiffel_text_box.set_padding (Layout_constants.Default_padding_size)
+ 			eiffel_text_box.extend (version_label)
+ 			eiffel_text_box.disable_item_expand (version_label)
+-			if l_update_check_link /= Void then
+-				eiffel_text_box.extend (l_update_check_link)
+-				eiffel_text_box.disable_item_expand (l_update_check_link)
 -			end
-+			Result := True
+ 			eiffel_text_box.extend (copyright_label)
+ 			eiffel_text_box.disable_item_expand (copyright_label)
+ 
+diff -urN EiffelStudio22.05/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e Src/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e
+--- EiffelStudio22.05/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e	2023-09-07 20:56:34.664363200 -0400
++++ Src/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e	2023-09-09 10:14:44.950285747 -0400
+@@ -253,7 +253,7 @@
+ 				-- Save EIS storage when project is closed.
+ 			eiffel_project.manager.close_agents.extend (agent eis_manager.save_storage)
+ 
+-			launch_interface
++			load_interface
  		end
  
- feature -- Text
-@@ -291,15 +260,7 @@
- 			preferences.misc_data.set_license_accepted (True)
- 				-- Save preferences right away.
- 			preferences.preferences.save_preferences
--			if is_cloud_enabled and then attached {ES_CLOUD_S} es_cloud_s.service as cld then
--				if is_logged_in then
--					on_next
--				else
--					switch_to_account_page (cld, Void, False)
--				end
+ 	launch_interface
+diff -urN EiffelStudio22.05/Src/Eiffel/interface/new_graphical/windows/development_window/eb_development_window_tools.e Src/Src/Eiffel/interface/new_graphical/windows/development_window/eb_development_window_tools.e
+--- EiffelStudio22.05/Src/Eiffel/interface/new_graphical/windows/development_window/eb_development_window_tools.e	2023-09-07 20:56:36.272348821 -0400
++++ Src/Src/Eiffel/interface/new_graphical/windows/development_window/eb_development_window_tools.e	2023-09-09 10:19:36.538662609 -0400
+@@ -189,11 +189,6 @@
+ 		require
+ 			not_is_recycled: not is_recycled
+ 		do
+-			if attached {ES_CLOUD_ACCOUNT_TOOL} develop_window.shell_tools.tool ({ES_CLOUD_ACCOUNT_TOOL}) as l_tool then
+-				Result := l_tool
 -			else
--				on_next
+-					-- Cloud service is not activated!
 -			end
-+			on_next
  		end
  
- 	on_purchase_selected
+ 	scm_tool: detachable ES_SCM_TOOL

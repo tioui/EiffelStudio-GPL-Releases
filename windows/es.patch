@@ -1,21 +1,92 @@
-diff -ruN EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/external_wizards/eb_external_wizard.e EiffelStudio_19.12_new/Src/Eiffel/interface/new_graphical/external_wizards/eb_external_wizard.e
---- EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/external_wizards/eb_external_wizard.e	2021-08-05 08:31:28.741450156 -0400
-+++ EiffelStudio_19.12_new/Src/Eiffel/interface/new_graphical/external_wizards/eb_external_wizard.e	2021-08-03 19:43:36.000000000 -0400
-@@ -45,7 +45,8 @@
+diff -urN EiffelStudio22.05/Src/dotnet/consumer/cache/cache_reader.e Src/Src/dotnet/consumer/cache/cache_reader.e
+--- EiffelStudio22.05/Src/dotnet/consumer/cache/cache_reader.e	2023-09-07 20:57:08.368056314 -0400
++++ Src/Src/dotnet/consumer/cache/cache_reader.e	2023-09-09 23:47:17.000000000 -0400
+@@ -375,7 +375,7 @@
+ 				Result := -1
+ 			end
+ 		ensure
+-			valid_result: Result =-1 or Result >= 0
++			valid_result: Result = -1 or Result >= 0
+ 		end
+ 
+ 	type_position_from_type_name (a_assembly: CONSUMED_ASSEMBLY; a_type: STRING): INTEGER
+@@ -407,7 +407,7 @@
+ 				end
+ 			end
+ 		ensure
+-			valid_result: Result =-1 or Result >= 0
++			valid_result: Result = -1 or Result >= 0
+ 		end
+ 
+ 	assembly_location (a_type: SYSTEM_TYPE): PATH
+diff -urN EiffelStudio22.05/Src/Eiffel/interface/graphical/foundations/tools/es_shell_tools.e Src/Src/Eiffel/interface/graphical/foundations/tools/es_shell_tools.e
+--- EiffelStudio22.05/Src/Eiffel/interface/graphical/foundations/tools/es_shell_tools.e	2023-09-07 20:56:33.108377088 -0400
++++ Src/Src/Eiffel/interface/graphical/foundations/tools/es_shell_tools.e	2023-09-09 10:18:46.000000000 -0400
+@@ -241,10 +241,6 @@
+ 			l_tools.put_last ({ES_TESTING_TOOL})
+ 			l_tools.put_last ({ES_TESTING_RESULTS_TOOL})
+ 			l_tools.put_last ({ES_WEB_BROWSER_TOOL})
+-
+-				-- ES Cloud tool
+-			l_tools.put_last ({ES_CLOUD_ACCOUNT_TOOL})
+-
+ 				-- Source Control Management tool
+ 			l_tools.put_last ({ES_SCM_TOOL})
+ 
+diff -urN EiffelStudio22.05/Src/Eiffel/interface/new_graphical/dialogs/eb_about_dialog.e Src/Src/Eiffel/interface/new_graphical/dialogs/eb_about_dialog.e
+--- EiffelStudio22.05/Src/Eiffel/interface/new_graphical/dialogs/eb_about_dialog.e	2023-09-07 20:56:34.308366379 -0400
++++ Src/Src/Eiffel/interface/new_graphical/dialogs/eb_about_dialog.e	2023-09-09 10:42:52.000000000 -0400
+@@ -78,7 +78,7 @@
+ 			copyright_label: EV_LABEL
+ 			registration_label: EV_TEXT
+ 			info_label: EV_LABEL
+-			l_update_check_link, l_license_link: EV_HIGHLIGHT_LINK_LABEL
++			l_license_link: EV_HIGHLIGHT_LINK_LABEL
+ 			hsep: EV_HORIZONTAL_SEPARATOR
+ 			ok_button: EV_BUTTON
+ 			white_cell: EV_CELL
+@@ -107,12 +107,6 @@
+ 			version_label.align_text_left
+ 			version_label.set_background_color (bg)
+ 
+-			if {ES_GRAPHIC}.is_standard_edition then
+-					-- Check for update ...
+-				create l_update_check_link.make_with_text ("Check for update (channel: " + preferences.misc_data.update_channel + ")")
+-				l_update_check_link.select_actions.extend (agent check_for_update (l_update_check_link))
+-			end
+-
+ 			create l_license_link.make_with_text (interface_names.l_read_license_text)
+ 			l_license_link.select_actions.extend (agent do (create {EB_LICENSE_COMMAND}).execute end)
+ 
+@@ -132,10 +126,6 @@
+ 			eiffel_text_box.set_padding (Layout_constants.Default_padding_size)
+ 			eiffel_text_box.extend (version_label)
+ 			eiffel_text_box.disable_item_expand (version_label)
+-			if l_update_check_link /= Void then
+-				eiffel_text_box.extend (l_update_check_link)
+-				eiffel_text_box.disable_item_expand (l_update_check_link)
+-			end
+ 			eiffel_text_box.extend (copyright_label)
+ 			eiffel_text_box.disable_item_expand (copyright_label)
+ 
+diff -urN EiffelStudio22.05/Src/Eiffel/interface/new_graphical/external_wizards/eb_external_wizard.e Src/Src/Eiffel/interface/new_graphical/external_wizards/eb_external_wizard.e
+--- EiffelStudio22.05/Src/Eiffel/interface/new_graphical/external_wizards/eb_external_wizard.e	2023-09-07 20:56:34.416365415 -0400
++++ Src/Src/Eiffel/interface/new_graphical/external_wizards/eb_external_wizard.e	2023-09-10 11:20:29.000000000 -0400
+@@ -44,8 +44,9 @@
+ 			temp_file: PLAIN_TEXT_FILE
  			wizard_launched: BOOLEAN
  		do
++			
  				-- Create callback file.
 -			create temp_file.make_open_temporary_with_prefix (eiffel_layout.temporary_path.extended ("eifwizard-").name)
 +			temp_file := get_temp_file(eiffel_layout.temporary_path.extended ("eifwizard-").name)
-+--			create temp_file.make_open_temporary_with_prefix (eiffel_layout.temporary_path.extended ("eifwizard-").name)
  				-- Fill callback file with input data.
  			temp_file.put_string ("Success=%"<SUCCESS>%"%N")
  			if Additional_parameters /= Void then
-@@ -77,6 +78,48 @@
+@@ -77,6 +78,47 @@
  
  feature {NONE} -- Implementation
  
-+
 +	get_temp_file(a_prefix:READABLE_STRING_GENERAL):PLAIN_TEXT_FILE
 +		local
 +			l_random:RANDOM
@@ -60,110 +131,30 @@ diff -ruN EiffelStudio_19.12/Src/Eiffel/interface/new_graphical/external_wizards
  	launch_wizard (callback_filename: READABLE_STRING_GENERAL)
  			-- Launch the wizard using the file `callback_filename' as callback.
  		local
-diff -urN build/Src/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e EiffelStudio_20.05_new/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e
---- build/Src/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e	2021-08-05 13:11:56.482503902 -0400
-+++ EiffelStudio_20.05_new/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e	2021-08-05 21:42:13.071116957 -0400
-@@ -18,11 +18,6 @@
- 			{NONE} all
+diff -urN EiffelStudio22.05/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e Src/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e
+--- EiffelStudio22.05/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e	2023-09-07 20:56:34.664363200 -0400
++++ Src/Src/Eiffel/interface/new_graphical/main/es_abstract_graphic.e	2023-09-09 10:14:44.000000000 -0400
+@@ -253,7 +253,7 @@
+ 				-- Save EIS storage when project is closed.
+ 			eiffel_project.manager.close_agents.extend (agent eis_manager.save_storage)
+ 
+-			launch_interface
++			load_interface
  		end
  
--	SHARED_ES_CLOUD_SERVICE
--		export
--			{NONE} all
--		end
--
- 	EV_SHARED_APPLICATION
- 		export
- 			{NONE} all
-@@ -266,7 +261,7 @@
- 
- 	display_launching_page
+ 	launch_interface
+diff -urN EiffelStudio22.05/Src/Eiffel/interface/new_graphical/windows/development_window/eb_development_window_tools.e Src/Src/Eiffel/interface/new_graphical/windows/development_window/eb_development_window_tools.e
+--- EiffelStudio22.05/Src/Eiffel/interface/new_graphical/windows/development_window/eb_development_window_tools.e	2023-09-07 20:56:36.272348821 -0400
++++ Src/Src/Eiffel/interface/new_graphical/windows/development_window/eb_development_window_tools.e	2023-09-09 10:19:36.000000000 -0400
+@@ -189,11 +189,6 @@
+ 		require
+ 			not_is_recycled: not is_recycled
  		do
--			if preferences.dialog_data.show_update_manager_dialog then
-+			if False then
- 				display_version_updater_check (agent display_startup_page)
- 			else
- 				display_startup_page
-diff -urN build/Src/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e EiffelStudio_20.05_new/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e
---- build/Src/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e	2021-08-05 13:11:58.226516809 -0400
-+++ EiffelStudio_20.05_new/Src/Eiffel/interface/new_graphical/startup/es_startup_page.e	2021-08-05 22:23:25.937467657 -0400
-@@ -16,8 +16,6 @@
- 
- 	ES_SHARED_FONTS_AND_COLORS
- 
--	SHARED_ES_CLOUD_SERVICE
--
- 	SHARED_LOCALE
- 
- create
-@@ -51,32 +49,8 @@
- feature -- Execution
- 
- 	start (win: EV_WINDOW)
--		local
--			acc: ES_ACCOUNT
- 		do
--			if terms_agreement_required or is_cloud_enabled then
--				if terms_agreement_required and not license_accepted then
--					switch_to_user_agreement_page
--					show_modal_to_window (win)
--				elseif is_cloud_enabled and then attached es_cloud_s.service as cld then
--					if is_logged_in then
--						acc := cld.active_account
--					end
--					if acc /= Void and then not acc.is_expired then --and then acc.has_active_plan then
--						cld.on_account_signed_in (acc)
--						on_next
--					elseif {ES_IDE_SETTINGS}.cloud_required then
--						switch_to_account_page (cld, if acc /= Void then acc.username else Void end, False)
--						show_modal_to_window (win)
--					else
--						on_next
--					end
--				else
--					on_next
--				end
+-			if attached {ES_CLOUD_ACCOUNT_TOOL} develop_window.shell_tools.tool ({ES_CLOUD_ACCOUNT_TOOL}) as l_tool then
+-				Result := l_tool
 -			else
--				on_next
+-					-- Cloud service is not activated!
 -			end
-+			on_next
  		end
  
- 	switch_to_user_agreement_page
-@@ -245,17 +219,12 @@
- 
- 	is_cloud_enabled: BOOLEAN
- 		do
--			Result := es_cloud_s.service /= Void
-+			Result := False
- 		end
- 
- 	is_logged_in: BOOLEAN
- 		do
--			if attached es_cloud_s.service as cld then
--				Result := cld.active_account /= Void
--			else
--					-- ES Cloud is not activated!
--				Result := True
--			end
-+			Result := True
- 		end
- 
- feature -- Text
-@@ -291,15 +260,7 @@
- 			preferences.misc_data.set_license_accepted (True)
- 				-- Save preferences right away.
- 			preferences.preferences.save_preferences
--			if is_cloud_enabled and then attached {ES_CLOUD_S} es_cloud_s.service as cld then
--				if is_logged_in then
--					on_next
--				else
--					switch_to_account_page (cld, Void, False)
--				end
--			else
--				on_next
--			end
-+			on_next
- 		end
- 
- 	on_purchase_selected
+ 	scm_tool: detachable ES_SCM_TOOL

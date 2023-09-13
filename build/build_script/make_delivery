@@ -65,6 +65,13 @@ NO_NEW_EC="True"
 else
 NO_NEW_EC=""
 fi
+
+awk 'index($0, "no_gtk3") != 0 { exit 54 }' tmpin$$.tmp
+if [ $? -eq 54 ] ;  then
+INCLUDE_GTK3=""
+fi
+
+
 awk 'index($0, "all") != 0 { exit 54 }' tmpin$$.tmp
 if [ $? -eq 54 ] ;  then
 MULTIPLE_EDITIONS="True"
@@ -117,7 +124,9 @@ move studio/wizards/new_projects/ewf/ewf.dsc studio/wizards/new_projects/ewf.dsc
 remtrace studio library wizard
 cp -rp $EIFFEL_SOURCE/Src/help/wizards/library/rootdir studio/wizards/new_projects/library
 move studio/wizards/new_projects/library/library.dsc studio/wizards/new_projects/library.dsc
-
+remtrace studio wrapc wizard
+cp -rp $EIFFEL_SOURCE/Src/help/wizards/wrapc/rootdir studio/wizards/new_projects/wrapc
+move studio/wizards/new_projects/wrapc/wrapc.dsc studio/wizards/new_projects/wrapc.dsc
 remtrace eweasel
 cp -rp $EIFFEL_SOURCE/eweasel eweasel
 fullrf $INSTALL_DIR/eweasel/INSTALL
@@ -160,13 +169,6 @@ fullrd vision2/tutorial
 fullrd vision2/widget_test
 
 remtrace precomp
-safe_md $INSTALL_DIR/experimental/precomp
-safe_md $INSTALL_DIR/experimental/precomp/spec
-cd $INSTALL_DIR/experimental/precomp/spec
-cp -rp $EIFFEL_SOURCE/Src/Delivery/precomp/spec/platform platform
-cd platform
-fullrf *-safe.ecf
-
 safe_md $INSTALL_DIR/precomp
 safe_md $INSTALL_DIR/precomp/spec
 cd $INSTALL_DIR/precomp/spec
@@ -232,6 +234,9 @@ if [ ! "$NO_COMPILE" ]; then
 		mv -f tmp $INSTALL_DIR/studio/spec/unix/finish_freezing
 
 		chmod +x $INSTALL_DIR/studio/spec/unix/finish_freezing
+
+		# update tools
+		chmod +x $INSTALL_DIR/tools/spec/unix/estudio-*
 	fi
 
 	if [ -n "$UNIX_LIB_NAME" ]; then
@@ -249,20 +254,22 @@ if [ ! "$NO_COMPILE" ]; then
 		mv -f tmp $INSTALL_DIR/studio/spec/unix/finish_freezing
 
 		chmod +x $INSTALL_DIR/studio/spec/unix/finish_freezing 
+
+		# update tools
+		chmod +x $INSTALL_DIR/tools/spec/unix/estudio-*
+		# update default.xml for unix
+		rm -f tmp
+		sed -e "s/\$ISE_EIFFEL\\/tools\\/spec\\/\$ISE_PLATFORM\\/bin\\/estudio-/estudio-/g" $INSTALL_DIR/studio/eifinit/spec/unix/default.xml > tmp
+		rm -f $INSTALL_DIR/studio/eifinit/spec/unix/default.xml
+		mv -f tmp $INSTALL_DIR/studio/eifinit/spec/unix/default.xml
 	fi
 
-	if [ "$MULTIPLE_EDITIONS" ]; then
-		remtrace ISE specific files: enterprise edition
-		cd $EIFFEL_SRC
-		cp -rp $EIFFEL_SOURCE/Src/library/keygen library/keygen
-		cd tools
-		cp -rp $EIFFEL_SOURCE/Src/tools/activation activation
-		cp -rp $EIFFEL_SOURCE/Src/tools/estudio_enterprise estudio_enterprise
-	fi
-
-	remtrace Install iron files
+	remtrace Install tools
 	safe_md $INSTALL_DIR/tools
 	cd $INSTALL_DIR/tools
+	cp -rp $EIFFEL_SOURCE/Src/Delivery/tools/spec spec
+
+	remtrace Install iron files
 	cp -rp $EIFFEL_SOURCE/Src/tools/iron/delivery/iron iron
 
 	remtrace Generate needed executables of the bin directory
@@ -296,10 +303,6 @@ fi
 remtrace "Putting the Eiffel libraries in the delivery"
 cd $INIT_DIR
 set -- $INSTALL_DIR library $GTK_DIR
-. ./make_libraries
-cd $INIT_DIR
-safe_md $INSTALL_DIR/experimental
-set -- $INSTALL_DIR/experimental experimental/library $GTK_DIR
 . ./make_libraries
 
 remtrace "Putting unsupported libraries in the delivery (ISE or others)"

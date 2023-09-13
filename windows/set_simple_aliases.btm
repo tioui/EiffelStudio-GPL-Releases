@@ -8,18 +8,19 @@ set _SET_SIMPLE_ALIAS_SET_=1
 
 REM File management
 REM Copy also hidden files, keep attributes, overwrite automatically
-alias copy *copy /hkz >>& %INSTALL_LOG
+alias safe_copy `*copy /hkz >>& %INSTALL_LOG`
 REM Remove completely a directory
-alias fullrd del /syeqxz >>& %INSTALL_LOG
+alias fullrd `del /syeqxz >>& %INSTALL_LOG`
 REM Remove a file
-alias fullrf del /yqze >>& %INSTALL_LOG
+alias fullrf `del /yqze >>& %INSTALL_LOG`
 REM Retrieve a file from the old delivery and put it in the new one
 alias quick_move `iff "%2" == "" then & copy %ISE_EIFFEL\%1 %STUDIO_DIR\%1 >>& %INSTALL_LOG & else & copy %1 %ISE_EIFFEL\%2 %STUDIO_DIR\%2 >>& %INSTALL_LOG & endiff`
 REM Create a directory if it doesn't exist already
 alias safe_md `iff not isdir %1 then & iff exist %1 then & fullrf %1 & endiff & md %1 & endiff`
 REM Save current path into TMP_PATH
 alias save_path `set TMP_PATH=%@EXECSTR[cd]`
-
+alias CANCEL_ON_ERROR `iff not "%DELIV_SKIP_ERROR%" == "True" then & CANCEL & endiff`
+alias remerror `remtrace ERROR %$ & echo -------------------------------- >>& %ERROR_LOG% & echo %$ >>& %ERROR_LOG & echo ======================== >>& %ERROR_LOG `
 REM Helpers for the script
 REM Give some info on what's happening, both in the log and on the screen
 alias remtrace `echo %$ & echo -------------------------------- >>& %INSTALL_LOG & echo %$ >>& %INSTALL_LOG`
@@ -27,13 +28,7 @@ REM Give info concerning the elapsed time
 alias give_time_to `remtrace time used to %$: & remtrace %@TIMER[1] & TIMER ON /1 >> NUL`
 REM Clean exit
 alias cancel `echo Exiting... & echo Total time used: & echo %@TIMER[2] & set PATH=%OLD_PATH & cdd %INIT_DIR & set EIFFEL_SRC=%OLD_EIFFEL_SRC & set ISE_LIBRARY=%OLD_ISE_LIBRARY & set ISE_SRC=%OLD_ISE_SRC & iff defined TMP_ISE_EIFFEL then & set ISE_EIFFEL=%TMP_ISE_EIFFEL & set TMP_ISE_EIFFEL= & endiff & *cancel`
-
-REM CVS Commands: checkout, export
-alias co `call  %INIT_DIR\svn_command.bat co %$ >>& %INSTALL_LOG`
-alias exprt `call %INIT_DIR\svn_command.bat --force export %$ >>& %INSTALL_LOG`
-REM We cannot redirect the output here, since the output is redirected to a file
-alias exprtfile `call %INIT_DIR\svn_command.bat cat %$` 
-
+alias set_parent_dir_of `for %%a in ("%2") do set "%1=%%~dpa%%"`
 REM C Compilation
 REM `default_make` will compile just for the value of ISE_C_COMPILER (currently defaulting to the Microsoft
 REM C compiler.

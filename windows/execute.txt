@@ -1,11 +1,15 @@
-"C:\Program Files (x86)\JPSoft\4NT8\4nt.exe"
-cd \Porter_Windows\windows_scripts
+"C:\program\4nt\4nt.exe"
+cd C:\install\windows
+set ISE_VC_MSC=VC120
+set ISE_VC_MSC_VC140=VC140
+set ISE_C_COMPILER=msc
 set ISE_C_COMPILER_VER=VC120
-set EIFFEL_SOURCE=C:\Porter_Windows\EiffelStudio_20.05
-set EIFFEL_OUTPUT=C:\Porter_Windows\Output
-set ORACLE_HOME=C:\oraclexe64\app\oracle\product\11.2.0\server
-set MYSQL=C:\mysql
-set WIN_BASH=C:\win-bash
-set PATH=%PATH%;C:\7-Zip;C:\mingw-w64\mingw32\bin
-call make_delivery.btm
-
+set EIFFEL_SOURCE=C:\install\Src
+set EIFFEL_OUTPUT=C:\install\Output
+set ERROR_LOG=%EIFFEL_OUTPUT%\error.log
+set INSTALL_LOG=%EIFFEL_OUTPUT%\install.log
+set ORACLE_HOME=C:\program\oraclexe\app\oracle\product\11.2.0\server
+set MYSQL=C:\program\mysql
+set WIN_BASH=C:\program\shell
+set PATH=%PATH%;C:\Program Files\7-Zip
+call make_delivery.btm no_msi

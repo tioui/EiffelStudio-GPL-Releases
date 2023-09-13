@@ -1,21 +1,26 @@
 @echo off
 
+echo Starting installation file
+
+call %~dp0init.btm
+
+remtrace Defining variables
+
+set EIFFEL_SRC=%TMP_EIFFEL_SRC
+set ISE_LIBRARY=%TMP_EIFFEL_SRC
+set ISE_SRC=%TMP_EIFFEL_SRC
+
 iff not defined INSTALL_DIR then 
 	echo INSTALL_DIR not defined
 	CANCEL
 endiff
-iff not defined INIT_DIR then
-	set INIT_DIR=%@EXECSTR[cd]
-endiff
-iff not defined INSTALL_LOG then
-	set INSTALL_LOG=%INIT_DIR%\install.log
-endiff
-
-call %INIT_DIR%\set_simple_aliases.btm
 
 set SVN_VERSION=%@EXECSTR[%WIN_BASH%\bash.exe set_version.sh %EIFFEL_SRC]
 
+remtrace Build Installation for %SVN_VERSION%
 
+cdd %INIT_DIR%\install
+safe_md %INIT_DIR%\install\bin
 iff .%ISE_PLATFORM%.==.win64. then
 	set IS_WIN64=yes
 	set WINNAME=x64
@@ -24,39 +29,58 @@ else
 	set WINNAME=x86
 endiff
 
+remtrace ==============================================
+remtrace Building the Setups (archive and msi)
+remtrace ==============================================
 
-remtrace ----------------------------------------------
-remtrace Building the Zips
-remtrace ----------------------------------------------
+safe_md %INSTALL_DIR%\setups
+safe_md %INSTALL_DIR%\setups\gpl
+iff EXIST %INSTALL_DIR%\%STUDIO_NAME% then
+    echo Rename %STUDIO_NAME% as EiffelStudio (issue from previous build?)
+    ren %INSTALL_DIR%\%STUDIO_NAME% %INSTALL_DIR%\EiffelStudio
+endiff
+
 fullrd %INSTALL_DIR\EiffelStudio\eweasel\compilation
 fullrd %INSTALL_DIR\EiffelStudio\eweasel\results
 fullrd %INSTALL_DIR\EiffelStudio\eweasel\source
 fullrd %INSTALL_DIR\EiffelStudio\eweasel\tests
-fullrd %INSTALL_DIR\EiffelStudio\experimental\C_library
-cdd %INSTALL_DIR
-ren EiffelStudio %STUDIO_NAME%
 
-copy %INSTALL_DIR\releases\gpl_version\ec.exe %INSTALL_DIR\%STUDIO_NAME%\studio\spec\%ISE_PLATFORM%\bin
-copy %INSTALL_DIR\releases\gpl_version\ecb.exe %INSTALL_DIR\%STUDIO_NAME%\studio\spec\%ISE_PLATFORM%\bin
-iff exist %INSTALL_DIR\releases\gpl_version\LICENSE then
-	copy %INSTALL_DIR\releases\gpl_version\LICENSE %INSTALL_DIR\%STUDIO_NAME%\LICENSE
-else
-	remtrace Missing GPL license text
-endiff
-xcopy %INIT_DIR\batfiles-%WINNAME%\*.bat %INSTALL_DIR\%STUDIO_NAME%\ /E /I /Y
-copy %INIT_DIR\EiffelStudio-*.bat %INSTALL_DIR\%STUDIO_NAME%\
-copy %INIT_DIR\EiffelBuild.bat %INSTALL_DIR\%STUDIO_NAME%\
-copy %INIT_DIR\Install-NET-Metadata-Consumer-Tool.bat %INSTALL_DIR\%STUDIO_NAME%\
+remtrace ==============================================
+remtrace Building the Zips
+remtrace ==============================================
+	cdd %INSTALL_DIR
+	iff exist %INSTALL_DIR%\setups\gpl\%STUDIO_NAME%_gpl_%SVN_VERSION-%ISE_PLATFORM%.7z then
+		remtrace GPL archive: reuse
+	else
+		iff EXIST EiffelStudio then
+		    ren EiffelStudio %STUDIO_NAME%
+		endiff
+		remtrace GPL archive
+		safe_copy %INSTALL_DIR%\releases\gpl_version\ec.exe %INSTALL_DIR%\%STUDIO_NAME%\studio\spec\%ISE_PLATFORM%\bin
+		safe_copy %INSTALL_DIR%\releases\gpl_version\ecb.exe %INSTALL_DIR%\%STUDIO_NAME%\studio\spec\%ISE_PLATFORM%\bin
+		iff exist %INSTALL_DIR%\releases\gpl_version\LICENSE then
+			xcopy %INSTALL_DIR%\releases\gpl_version\LICENSE %INSTALL_DIR%\%STUDIO_NAME%\LICENSE
+		else
+			remtrace Missing GPL license text
+		endiff
+		xcopy %INIT_DIR\batfiles-%WINNAME%\*.bat %INSTALL_DIR\%STUDIO_NAME%\ /E /I /Y
+		safe_copy %INIT_DIR\EiffelStudio-*.bat %INSTALL_DIR\%STUDIO_NAME%\
+		safe_copy %INIT_DIR\EiffelBuild.bat %INSTALL_DIR\%STUDIO_NAME%\
+		safe_copy %INIT_DIR\Install-NET-Metadata-Consumer-Tool.bat %INSTALL_DIR\%STUDIO_NAME%\
+		7z a -t7z %INSTALL_DIR%\setups\gpl\%STUDIO_NAME%_gpl_%SVN_VERSION-%ISE_PLATFORM%.7z %STUDIO_NAME% -mx9 >>& %INSTALL_LOG
+	endiff
+	remtrace Uploading GPL packages online
+	iff not EXIST %STUDIO_NAME%_gpl_%SVN_VERSION%-%ISE_PLATFORM%.7z then
+		if EXIST %~dp0notify.bat %~dp0notify.bat "Failure : no %STUDIO_NAME%_gpl_%SVN_VERSION%-%ISE_PLATFORM%.7z release!"
+	endiff
 
-7z a -t7z %INSTALL_DIR\setups\gpl\%STUDIO_NAME%_gpl_%SVN_VERSION-%ISE_PLATFORM%.7z %STUDIO_NAME% -mx9 >>& %INSTALL_LOG
 
 
 remtrace Restoring the layout to its original state
 cdd %INSTALL_DIR
-ren %STUDIO_NAME% EiffelStudio
-
-fullrf %INSTALL_DIR\EiffelStudio\studio\spec\%ISE_PLATFORM%\bin\ec.exe
-fullrf %INSTALL_DIR\EiffelStudio\studio\spec\%ISE_PLATFORM%\bin\ecb.exe
+if not exist EiffelStudio ren %STUDIO_NAME% EiffelStudio
+fullrf %INSTALL_DIR%\%STUDIO_NAME%\studio\spec\%ISE_PLATFORM%\bin\ec.exe
+fullrf %INSTALL_DIR%\%STUDIO_NAME%\studio\spec\%ISE_PLATFORM%\bin\ecb.exe
 
 remtrace Your deliveries are now ready
 cdd %INIT_DIR

@@ -12,7 +12,7 @@ If you want an untouched version of EiffelStudio, please use the official
 EiffelStudio released. You can find them there: https://account.eiffel.com/downloads
 
 Also, if you want to donate for the project, I encourage you to buy an
-EiffelStudio licence from Eiffel Software. You can buy a licence here:
+EiffelStudio license from Eiffel Software. You can buy a license here:
 https://www.eiffel.com/eiffelstudio/buy/
 
 Using the script
